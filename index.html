@@ -253,7 +253,7 @@ function buildNav() {
   const role = currentUser.role;
   let tabs = [];
   if (role === 'owner') tabs = ['Resumen','Inventario','Horarios','Vacaciones','Avisos','Protocolos'];
-  else if (role === 'manager') tabs = ['Checklist','Inventario','Parte diario','Café','Protocolos','Avisos'];
+  else if (role === 'manager') tabs = ['Checklist','Inventario','Parte diario','Café','Horarios','Protocolos','Avisos'];
   else tabs = ['Mi turno','Protocolos','Avisos','Vacaciones'];
   nav.innerHTML = tabs.map((t,i) =>
     `<button class="nav-btn${i===0?' active':''}" onclick="showSection('${t}',this)">${t}</button>`
@@ -575,26 +575,34 @@ async function postNotice() {
 async function renderSchedule() {
   const c = document.getElementById('app-sections');
   const { data: schedules } = await sb.from('ops_schedules').select('*').order('week_start', { ascending: false }).limit(20);
-  const days = ['mon','tue','wed','thu','fri','sat','sun'];
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayLabels = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const isOwner = currentUser.role === 'owner';
 
   function schedTable(local) {
     const rows = (schedules||[]).filter(s => s.local === local);
     if (!rows.length) return `<p style="font-size:14px;color:var(--text2);padding:1rem 0">Sin horarios registrados todavía.</p>`;
     const week = rows[0].week_start;
     const weekRows = rows.filter(r => r.week_start === week);
-    return `<p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(week).toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
+    return `<p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(week+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
     <table class="sched-table"><thead><tr><th>Empleado</th>${dayLabels.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>
     ${weekRows.map(r=>`<tr><td style="font-weight:500">${r.employee_name}</td>${days.map(d=>`<td>${r[d]?`<span class="shift-pill">${r[d]}</span>`:`<span class="shift-off">—</span>`}</td>`).join('')}</tr>`).join('')}
     </tbody></table>`;
   }
 
-  c.innerHTML = `
-    <div class="section-title">Horarios semanales</div>
-    <div class="tabs"><button class="tab-btn active" onclick="switchTab('sch','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('sch','mb',this)">Matbakh</button></div>
+  const local = currentUser.local;
+  let html = `<div class="section-title">Horarios semanales</div>`;
+
+  if (isOwner) {
+    html += `<div class="tabs"><button class="tab-btn active" onclick="switchTab('sch','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('sch','mb',this)">Matbakh</button></div>
     <div class="tab-panel active" id="sch-jb"><div class="card">${schedTable('juan_bravo')}</div></div>
-    <div class="tab-panel" id="sch-mb"><div class="card">${schedTable('matbakh')}</div></div>
-    <div class="card" style="margin-top:1.5rem"><div class="card-title">Añadir turno</div>
+    <div class="tab-panel" id="sch-mb"><div class="card">${schedTable('matbakh')}</div></div>`;
+  } else {
+    html += `<div class="card">${schedTable(local)}</div>`;
+  }
+
+  if (isOwner) {
+    html += `<div class="card" style="margin-top:1.5rem"><div class="card-title">Añadir turno</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div><label class="form-label">Local</label><select class="form-input" id="sch-local"><option value="juan_bravo">Juan Bravo</option><option value="matbakh">Matbakh</option></select></div>
         <div><label class="form-label">Empleado</label><input class="form-input" id="sch-name" placeholder="Nombre"></div>
@@ -605,12 +613,14 @@ async function renderSchedule() {
       </div>
       <button class="btn-primary" style="margin-top:1rem" onclick="saveSchedule()">Guardar turno</button>
       <div class="alert-banner alert-green" id="sch-success">Turno guardado.</div>
-    </div>
-  `;
+    </div>`;
+  }
+
+  c.innerHTML = html;
 }
 
 async function saveSchedule() {
-  const days = ['mon','tue','wed','thu','fri','sat','sun'];
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const payload = {
     local: document.getElementById('sch-local').value,
     employee_name: document.getElementById('sch-name').value,

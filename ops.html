@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utópico Coffee — Ops</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#1C1B1B;--bg2:#252424;--bg3:#2e2d2d;--border:#3a3939;--text:#ffffff;--text2:#aaaaaa;--text3:#555;--green:#7ec850;--amber:#f0a030;--red:#e24b4a;--radius:10px;--font:'Helvetica Neue',Arial,sans-serif}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
+
+/* LOGIN */
+.screen{display:none}.screen.active{display:block}
+.login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:90vh;gap:2rem}
+.logo{font-size:22px;font-weight:500;letter-spacing:2px}
+.logo-sub{font-size:13px;color:var(--text2);letter-spacing:1px;margin-top:4px;text-align:center}
+.pin-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:2rem;width:100%;max-width:320px;text-align:center}
+.pin-title{font-size:15px;font-weight:500;margin-bottom:.5rem}
+.pin-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.pin-display{font-size:28px;letter-spacing:8px;font-weight:500;min-height:42px;margin-bottom:1.5rem;color:var(--text)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pin-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:14px;font-size:18px;font-weight:500;cursor:pointer;color:var(--text);font-family:var(--font)}
+.pin-btn:hover{background:#3a3939}
+.pin-btn:active{transform:scale(.96)}
+.pin-btn.wide{grid-column:span 2}
+.pin-error{font-size:13px;color:var(--red);margin-top:1rem;min-height:18px}
+
+/* SHELL */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 1.5rem;border-bottom:0.5px solid var(--border);margin-bottom:1.5rem}
+.topbar-brand{font-size:16px;font-weight:500;letter-spacing:1px}
+.topbar-role{font-size:12px;color:var(--text2)}
+.btn-sm{font-size:12px;color:var(--text2);background:none;border:0.5px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:var(--font)}
+.btn-sm:hover{border-color:#fff;color:#fff}
+.nav{display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap}
+.nav-btn{font-size:13px;padding:6px 14px;border-radius:20px;border:0.5px solid transparent;cursor:pointer;background:none;color:var(--text2);font-family:var(--font)}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.active{background:#fff;color:#1C1B1B}
+.section{display:none}.section.active{display:block}
+.section-title{font-size:18px;font-weight:500;margin-bottom:1.25rem}
+
+/* CARDS */
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+.card-title{font-size:14px;font-weight:500;margin-bottom:1rem}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.5rem}
+.stat{background:var(--bg3);border-radius:8px;padding:1rem}
+.stat-label{font-size:12px;color:var(--text2);margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:500}
+.stat-delta{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab-btn{font-size:13px;padding:5px 14px;border-radius:20px;border:0.5px solid var(--border);cursor:pointer;background:none;font-family:var(--font);color:var(--text2)}
+.tab-btn.active{background:#fff;color:#1C1B1B;border-color:#fff}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* CHECKLIST */
+.check-progress{font-size:12px;color:var(--text2);margin-bottom:1rem}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);cursor:pointer}
+.check-item:last-child{border-bottom:none}
+.check-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--text3);flex-shrink:0;transition:all .15s}
+.check-box.done{background:#fff;border-color:#fff;display:flex;align-items:center;justify-content:center}
+.check-box.done::after{content:'';display:block;width:5px;height:9px;border:2px solid #1C1B1B;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+.check-text{font-size:14px}.check-text.done{color:var(--text3);text-decoration:line-through}
+
+/* INVENTORY */
+.inv-cat{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin:1.25rem 0 .75rem;padding-bottom:4px;border-bottom:0.5px solid var(--border)}
+.inv-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.inv-row:last-child{border-bottom:none}
+.inv-name{flex:1;font-size:14px}
+.inv-unit{font-size:12px;color:var(--text2);min-width:36px;text-align:right}
+.inv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.inv-dot.ok{background:var(--green)}.inv-dot.low{background:var(--amber)}.inv-dot.out{background:var(--red)}
+.inv-controls{display:flex;align-items:center;gap:6px}
+.inv-qty-btn{width:26px;height:26px;border-radius:50%;border:0.5px solid var(--border);background:none;cursor:pointer;font-size:16px;color:var(--text);font-family:var(--font);display:flex;align-items:center;justify-content:center}
+.inv-qty-btn:hover{background:var(--bg3)}
+.inv-qty-val{font-size:14px;font-weight:500;min-width:28px;text-align:center}
+
+/* ALERT BANNER */
+.alert-banner{border-radius:8px;padding:.75rem 1rem;font-size:13px;margin-bottom:1rem;display:none}
+.alert-banner.show{display:block}
+.alert-amber{background:#3a2800;border:0.5px solid #7a5200;color:#f0a030}
+.alert-green{background:#1a3300;border:0.5px solid #4a8020;color:#7ec850}
+
+/* FORMS */
+.form-row{margin-bottom:1rem}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block;font-weight:500}
+.form-input{width:100%;padding:8px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--bg3);color:var(--text)}
+.form-input:focus{outline:none;border-color:#fff}
+textarea.form-input{resize:vertical;min-height:72px}
+select.form-input{cursor:pointer}
+.btn-primary{background:#fff;color:#1C1B1B;border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-family:var(--font);cursor:pointer;font-weight:500}
+.btn-primary:hover{opacity:.85}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+
+/* STARS */
+.stars{display:flex;gap:4px}
+.star{font-size:22px;cursor:pointer;color:var(--text3)}.star.on{color:#fff}
+
+/* PROTOCOLS */
+.proto-item{background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.proto-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer}
+.proto-name{font-size:14px;font-weight:500}
+.proto-tag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg3);color:var(--text2)}
+.proto-arrow{font-size:12px;color:var(--text2);transition:transform .2s}
+.proto-arrow.open{transform:rotate(180deg)}
+.proto-body{display:none;padding:0 16px 16px;border-top:0.5px solid var(--border)}
+.proto-body.open{display:block}
+.proto-step{display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+.proto-step:last-child{border-bottom:none}
+.proto-num{min-width:20px;height:20px;border-radius:50%;background:#fff;color:#1C1B1B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+
+/* SCHEDULE */
+.sched-table{width:100%;border-collapse:collapse;font-size:13px}
+.sched-table th{padding:8px 6px;text-align:left;font-weight:500;font-size:11px;color:var(--text2);border-bottom:0.5px solid var(--border)}
+.sched-table td{padding:8px 6px;border-bottom:0.5px solid var(--border)}
+.shift-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;background:var(--bg3);color:var(--text)}
+.shift-off{color:var(--text3)}
+
+/* NOTICES */
+.notice{background:var(--bg2);border-left:3px solid #fff;border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin-bottom:.75rem}
+.notice-from{font-size:11px;color:var(--text2);margin-bottom:4px}
+.notice-text{font-size:14px;line-height:1.6}
+.notice-date{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* VACATIONS */
+.vac-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap}
+.vac-row:last-child{border-bottom:none}
+.vac-name{font-weight:500;font-size:14px;min-width:100px}
+.vac-dates{font-size:13px;color:var(--text2);flex:1}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:500}
+.badge-pending{background:#3a2800;color:#f0a030}
+.badge-ok{background:#1a3300;color:#7ec850}
+.badge-no{background:#3a0000;color:#e24b4a}
+.vac-actions{display:flex;gap:6px}
+.btn-vac{padding:3px 10px;border-radius:6px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;background:none;font-family:var(--font);color:var(--text)}
+.btn-vac.approve{border-color:#7ec850;color:#7ec850}
+.btn-vac.deny{border-color:#e24b4a;color:#e24b4a}
+
+/* ALERT ROWS */
+.alert-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+.alert-row:last-child{border-bottom:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* LOADING */
+.loading{text-align:center;padding:2rem;color:var(--text2);font-size:14px}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr}.sched-table{font-size:11px}.sched-table td,.sched-table th{padding:6px 4px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- LOGIN SCREEN -->
+<div class="screen active" id="screen-login">
+  <div class="login-wrap">
+    <div><div class="logo">UTÓPICO COFFEE</div><div class="logo-sub">Utopia is a state of mind</div></div>
+    <div class="pin-card">
+      <div class="pin-title">Introduce tu PIN</div>
+      <div class="pin-sub" id="pin-sub">4 dígitos</div>
+      <div class="pin-display" id="pin-display">––––</div>
+      <div class="pin-grid">
+        <button class="pin-btn" onclick="pinPress('1')">1</button>
+        <button class="pin-btn" onclick="pinPress('2')">2</button>
+        <button class="pin-btn" onclick="pinPress('3')">3</button>
+        <button class="pin-btn" onclick="pinPress('4')">4</button>
+        <button class="pin-btn" onclick="pinPress('5')">5</button>
+        <button class="pin-btn" onclick="pinPress('6')">6</button>
+        <button class="pin-btn" onclick="pinPress('7')">7</button>
+        <button class="pin-btn" onclick="pinPress('8')">8</button>
+        <button class="pin-btn" onclick="pinPress('9')">9</button>
+        <button class="pin-btn" onclick="pinClear()">✕</button>
+        <button class="pin-btn" onclick="pinPress('0')">0</button>
+        <button class="pin-btn" onclick="pinBack()">⌫</button>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="screen" id="screen-app">
+  <div class="topbar">
+    <div><div class="topbar-brand">UTÓPICO COFFEE</div><div class="topbar-role" id="app-role-label"></div></div>
+    <button class="btn-sm" onclick="logout()">Salir</button>
+  </div>
+  <div class="nav" id="app-nav"></div>
+  <div id="app-sections"></div>
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ombypthpxggwqxqptkng.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_8CGNBEnrFLv041HyhSuqWw_Q2BX5r-v';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let pinInput = '';
+let invCache = {};
+
+// ── PIN ──────────────────────────────────────────────────────
+function pinPress(d) {
+  if (pinInput.length >= 4) return;
+  pinInput += d;
+  renderPinDisplay();
+  if (pinInput.length === 4) setTimeout(tryLogin, 150);
+}
+function pinBack() { pinInput = pinInput.slice(0,-1); renderPinDisplay(); }
+function pinClear() { pinInput = ''; renderPinDisplay(); document.getElementById('pin-error').textContent = ''; }
+function renderPinDisplay() {
+  const d = document.getElementById('pin-display');
+  d.textContent = '●'.repeat(pinInput.length) + '–'.repeat(4 - pinInput.length);
+}
+async function tryLogin() {
+  const { data, error } = await sb.from('ops_users').select('*').eq('pin', pinInput).eq('active', true).single();
+  if (error || !data) {
+    document.getElementById('pin-error').textContent = 'PIN incorrecto';
+    pinInput = '';
+    renderPinDisplay();
+    return;
+  }
+  currentUser = data;
+  pinInput = '';
+  renderPinDisplay();
+  document.getElementById('pin-error').textContent = '';
+  showApp();
+}
+function logout() {
+  currentUser = null;
+  invCache = {};
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-login').classList.add('active');
+}
+
+// ── APP SHELL ─────────────────────────────────────────────────
+function showApp() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  document.getElementById('app-role-label').textContent =
+    `${currentUser.name} · ${currentUser.role === 'owner' ? 'Propietario' : currentUser.role === 'manager' ? localLabel(currentUser.local) : 'Barista · ' + localLabel(currentUser.local)}`;
+  buildNav();
+}
+function localLabel(l) { return l === 'juan_bravo' ? 'Juan Bravo' : l === 'matbakh' ? 'Matbakh' : 'Todos los locales'; }
+
+function buildNav() {
+  const nav = document.getElementById('app-nav');
+  const role = currentUser.role;
+  let tabs = [];
+  if (role === 'owner') tabs = ['Resumen','Inventario','Horarios','Vacaciones','Avisos','Protocolos'];
+  else if (role === 'manager') tabs = ['Checklist','Inventario','Parte diario','Café','Protocolos','Avisos'];
+  else tabs = ['Mi turno','Protocolos','Avisos','Vacaciones'];
+  nav.innerHTML = tabs.map((t,i) =>
+    `<button class="nav-btn${i===0?' active':''}" onclick="showSection('${t}',this)">${t}</button>`
+  ).join('');
+  showSectionByName(tabs[0]);
+}
+
+function showSection(name, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  showSectionByName(name);
+}
+
+function showSectionByName(name) {
+  const container = document.getElementById('app-sections');
+  container.innerHTML = `<div class="loading"><span class="spinner"></span>Cargando...</div>`;
+  const role = currentUser.role;
+  if (name === 'Resumen') renderOwnerOverview();
+  else if (name === 'Inventario') renderInventory();
+  else if (name === 'Checklist') renderChecklist();
+  else if (name === 'Parte diario') renderDailyReport();
+  else if (name === 'Café') renderCoffeeQuality();
+  else if (name === 'Protocolos') renderProtocols();
+  else if (name === 'Avisos') renderNotices();
+  else if (name === 'Horarios') renderSchedule();
+  else if (name === 'Vacaciones' || name === 'Mi turno' && false) renderVacations();
+  else if (name === 'Mi turno') renderMySchedule();
+}
+
+// ── OWNER OVERVIEW ────────────────────────────────────────────
+async function renderOwnerOverview() {
+  const c = document.getElementById('app-sections');
+  const today = new Date().toISOString().split('T')[0];
+  const [repRes, invRes] = await Promise.all([
+    sb.from('ops_daily_reports').select('*').eq('report_date', today).order('created_at', { ascending: false }),
+    sb.from('ops_inventory').select('*').lt('quantity', sb.raw ? undefined : 0)
+  ]);
+  const reports = repRes.data || [];
+  const jbRep = reports.find(r => r.local === 'juan_bravo');
+  const mbRep = reports.find(r => r.local === 'matbakh');
+  const { data: invAll } = await sb.from('ops_inventory').select('*');
+  const lowItems = (invAll || []).filter(i => i.quantity < i.min_quantity);
+
+  c.innerHTML = `
+    <div class="section-title">Resumen del día</div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('ov','jb',this)">Juan Bravo</button>
+      <button class="tab-btn" onclick="switchTab('ov','mb',this)">Matbakh</button>
+    </div>
+    <div class="tab-panel active" id="ov-jb">${ownerLocalCard(jbRep,'juan_bravo',lowItems)}</div>
+    <div class="tab-panel" id="ov-mb">${ownerLocalCard(mbRep,'matbakh',lowItems)}</div>
+  `;
+}
+
+function ownerLocalCard(rep, local, lowItems) {
+  const localLow = lowItems.filter(i => i.local === local);
+  const label = local === 'juan_bravo' ? 'Juan Bravo' : 'Matbakh';
+  if (!rep) return `
+    <div class="card"><div class="card-title">Sin parte diario hoy</div>
+    <p style="font-size:14px;color:var(--text2)">El encargado de ${label} aún no ha enviado el parte de hoy.</p></div>
+    ${localLow.length ? `<div class="card"><div class="card-title">Alertas de inventario</div>${localLow.map(i=>`<div class="alert-row"><div class="alert-dot" style="background:var(--amber)"></div><span>${i.name} — ${i.quantity} ${i.unit} (mín. ${i.min_quantity})</span></div>`).join('')}</div>` : ''}
+  `;
+  const cashOk = rep.cash_matches;
+  return `
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-label">Ventas Square</div><div class="stat-val">€${rep.square_sales||0}</div></div>
+      <div class="stat"><div class="stat-label">Caja</div><div class="stat-val" style="color:${cashOk?'var(--green)':'var(--amber)'}">${cashOk?'Cuadra':'−€'+Math.abs(rep.cash_discrepancy||0)}</div></div>
+      <div class="stat"><div class="stat-label">Encargado</div><div class="stat-val" style="font-size:15px">${rep.submitted_by}</div></div>
+      <div class="stat"><div class="stat-label">Stock bajo</div><div class="stat-val" style="color:${localLow.length?'var(--amber)':'var(--green)'}">${localLow.length}</div></div>
+    </div>
+    ${rep.manager_note ? `<div class="card"><div class="card-title">Nota del encargado</div><div style="font-size:14px;line-height:1.6">${rep.manager_note}</div><div style="font-size:11px;color:var(--text3);margin-top:8px">${rep.submitted_by} · Hoy</div></div>` : ''}
+    ${rep.incidents ? `<div class="card"><div class="card-title">Incidencias</div><div style="font-size:14px;line-height:1.6;color:var(--amber)">${rep.incidents}</div></div>` : ''}
+    ${localLow.length ? `<div class="card"><div class="card-title">Stock bajo</div>${localLow.map(i=>`<div class="alert-row"><div class="alert-dot" style="background:var(--amber)"></div><span>${i.name} — ${i.quantity} ${i.unit} (mín. ${i.min_quantity})</span></div>`).join('')}</div>` : ''}
+  `;
+}
+
+// ── INVENTORY ─────────────────────────────────────────────────
+async function renderInventory() {
+  const c = document.getElementById('app-sections');
+  const isOwner = currentUser.role === 'owner';
+  const isManager = currentUser.role === 'manager';
+  const editable = isManager;
+  let locals = isOwner ? ['juan_bravo','matbakh'] : [currentUser.local];
+
+  const { data: items } = await sb.from('ops_inventory').select('*').order('category').order('name');
+  invCache = {};
+  (items||[]).forEach(i => { invCache[i.id] = i; });
+
+  const lowCount = (items||[]).filter(i => i.quantity < i.min_quantity).length;
+
+  let html = `<div class="section-title">Inventario en vivo</div>`;
+  if (lowCount) html += `<div class="alert-banner alert-amber show">${lowCount} producto${lowCount>1?'s':''} bajo mínimo</div>`;
+
+  if (isOwner) {
+    html += `<div class="tabs"><button class="tab-btn active" onclick="switchTab('inv','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('inv','mb',this)">Matbakh</button></div>
+    <div class="tab-panel active" id="inv-jb">${buildInvTable(items,'juan_bravo',false)}</div>
+    <div class="tab-panel" id="inv-mb">${buildInvTable(items,'matbakh',false)}</div>`;
+  } else {
+    html += buildInvTable(items, currentUser.local, editable);
+  }
+  c.innerHTML = html;
+}
+
+function buildInvTable(items, local, editable) {
+  const localItems = (items||[]).filter(i => i.local === local);
+  const cats = [...new Set(localItems.map(i => i.category))];
+  let html = `<div class="card" style="padding:1rem 1.25rem">`;
+  cats.forEach(cat => {
+    html += `<div class="inv-cat">${catLabel(cat)}</div>`;
+    localItems.filter(i => i.category === cat).forEach(item => {
+      const qty = item.quantity;
+      const st = qty <= 0 ? 'out' : qty < item.min_quantity ? 'low' : 'ok';
+      const ctrl = editable
+        ? `<div class="inv-controls"><button class="inv-qty-btn" onclick="updateQty('${item.id}',-1)">−</button><span class="inv-qty-val" id="qty-${item.id}">${qty}</span><button class="inv-qty-btn" onclick="updateQty('${item.id}',1)">+</button></div>`
+        : `<span class="inv-qty-val">${qty}</span>`;
+      html += `<div class="inv-row"><div class="inv-dot ${st}"></div><div class="inv-name">${item.name}</div><div class="inv-unit">${item.unit}</div>${ctrl}</div>`;
+    });
+  });
+  return html + '</div>';
+}
+
+function catLabel(c) {
+  return {cafe:'Café',leches:'Leches',consumibles:'Consumibles',limpieza:'Limpieza',comida:'Comida / Cocina'}[c] || c;
+}
+
+async function updateQty(id, delta) {
+  const item = invCache[id];
+  if (!item) return;
+  const newQty = Math.max(0, item.quantity + delta);
+  invCache[id].quantity = newQty;
+  const el = document.getElementById(`qty-${id}`);
+  if (el) el.textContent = newQty;
+  const dot = el?.closest('.inv-row')?.querySelector('.inv-dot');
+  if (dot) {
+    dot.className = 'inv-dot ' + (newQty <= 0 ? 'out' : newQty < item.min_quantity ? 'low' : 'ok');
+  }
+  await sb.from('ops_inventory').update({ quantity: newQty, updated_at: new Date().toISOString(), updated_by: currentUser.name }).eq('id', id);
+}
+
+// ── CHECKLIST ─────────────────────────────────────────────────
+async function renderChecklist() {
+  const c = document.getElementById('app-sections');
+  const today = new Date().toISOString().split('T')[0];
+  const local = currentUser.local;
+  const { data: existing } = await sb.from('ops_checklists').select('*').eq('local', local).eq('check_date', today);
+  const openRec = existing?.find(r => r.type === 'opening');
+  const closeRec = existing?.find(r => r.type === 'closing');
+
+  const openSteps = local === 'juan_bravo' ? STEPS_OPEN_JB : STEPS_OPEN_MB;
+  const closeSteps = local === 'juan_bravo' ? STEPS_CLOSE_JB : STEPS_CLOSE_MB;
+
+  c.innerHTML = `
+    <div class="section-title">Checklist del día</div>
+    <div class="card"><div class="card-title">Apertura · ${localLabel(local)}</div><div id="cl-open">${buildChecklistHTML(openSteps, openRec?.completed_steps||[], 'open')}</div></div>
+    <div class="card"><div class="card-title">Cierre · ${localLabel(local)}</div><div id="cl-close">${buildChecklistHTML(closeSteps, closeRec?.completed_steps||[], 'close')}</div></div>
+  `;
+}
+
+function buildChecklistHTML(steps, completed, type) {
+  const done = completed.length;
+  return `<div class="check-progress" id="cl-prog-${type}">${done}/${steps.length} completados</div>` +
+    steps.map((s,i) => {
+      const isDone = completed.includes(i);
+      return `<div class="check-item" onclick="toggleChecklistItem(${i},'${type}')"><div class="check-box${isDone?' done':''}" id="cb-${type}-${i}"></div><div class="check-text${isDone?' done':''}" id="ct-${type}-${i}">${s}</div></div>`;
+    }).join('');
+}
+
+const clState = { open: [], close: [] };
+
+async function toggleChecklistItem(idx, type) {
+  const today = new Date().toISOString().split('T')[0];
+  const local = currentUser.local;
+  const { data: existing } = await sb.from('ops_checklists').select('*').eq('local', local).eq('check_date', today).eq('type', type === 'open' ? 'opening' : 'closing');
+  const rec = existing?.[0];
+  const steps = type === 'open' ? (local === 'juan_bravo' ? STEPS_OPEN_JB : STEPS_OPEN_MB) : (local === 'juan_bravo' ? STEPS_CLOSE_JB : STEPS_CLOSE_MB);
+  let completed = rec?.completed_steps || [];
+  if (completed.includes(idx)) completed = completed.filter(i => i !== idx);
+  else completed = [...completed, idx];
+
+  const box = document.getElementById(`cb-${type}-${idx}`);
+  const txt = document.getElementById(`ct-${type}-${idx}`);
+  const isDone = completed.includes(idx);
+  box?.classList.toggle('done', isDone);
+  txt?.classList.toggle('done', isDone);
+  const prog = document.getElementById(`cl-prog-${type}`);
+  if (prog) prog.textContent = `${completed.length}/${steps.length} completados`;
+
+  const payload = { local, type: type === 'open' ? 'opening' : 'closing', submitted_by: currentUser.name, check_date: today, completed_steps: completed, total_steps: steps.length };
+  if (rec) await sb.from('ops_checklists').update(payload).eq('id', rec.id);
+  else await sb.from('ops_checklists').insert(payload);
+}
+
+// ── DAILY REPORT ──────────────────────────────────────────────
+function renderDailyReport() {
+  const c = document.getElementById('app-sections');
+  c.innerHTML = `
+    <div class="section-title">Parte diario</div>
+    <div class="card">
+      <div class="form-row"><label class="form-label">Ventas totales Square (€)</label><input type="number" class="form-input" id="dr-sales" placeholder="0.00"></div>
+      <div class="form-row"><label class="form-label">¿Cuadra la caja?</label><select class="form-input" id="dr-match"><option value="1">Sí, cuadra</option><option value="0">No — indicar diferencia</option></select></div>
+      <div class="form-row"><label class="form-label">Efectivo en caja (€)</label><input type="number" class="form-input" id="dr-cash" placeholder="0.00"></div>
+      <div class="form-row"><label class="form-label">Diferencia (€, si no cuadra)</label><input type="number" class="form-input" id="dr-disc" placeholder="0.00"></div>
+      <div class="form-row"><label class="form-label">Incidencias del día</label><textarea class="form-input" id="dr-incidents" placeholder="Sin incidencias / describir si las hay..."></textarea></div>
+      <div class="form-row"><label class="form-label">Stock — ¿hay algo que pedir?</label><textarea class="form-input" id="dr-stock" placeholder="Ej: pedir leche oat el lunes..."></textarea></div>
+      <div class="form-row"><label class="form-label">Nota para Diyar</label><textarea class="form-input" id="dr-note" placeholder="Cualquier cosa relevante del día..."></textarea></div>
+      <button class="btn-primary" id="dr-submit" onclick="submitDailyReport()">Enviar parte</button>
+      <div class="alert-banner alert-green" id="dr-success">Parte enviado correctamente.</div>
+    </div>
+  `;
+}
+
+async function submitDailyReport() {
+  const btn = document.getElementById('dr-submit');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  const payload = {
+    local: currentUser.local,
+    submitted_by: currentUser.name,
+    report_date: new Date().toISOString().split('T')[0],
+    square_sales: parseFloat(document.getElementById('dr-sales').value) || 0,
+    cash_matches: document.getElementById('dr-match').value === '1',
+    cash_amount: parseFloat(document.getElementById('dr-cash').value) || 0,
+    cash_discrepancy: parseFloat(document.getElementById('dr-disc').value) || 0,
+    incidents: document.getElementById('dr-incidents').value,
+    stock_notes: document.getElementById('dr-stock').value,
+    manager_note: document.getElementById('dr-note').value,
+  };
+  await sb.from('ops_daily_reports').insert(payload);
+  btn.textContent = 'Enviar parte';
+  btn.disabled = false;
+  const s = document.getElementById('dr-success');
+  s.classList.add('show');
+  setTimeout(() => s.classList.remove('show'), 3000);
+}
+
+// ── COFFEE QUALITY ────────────────────────────────────────────
+let coffeeStars = 0;
+function renderCoffeeQuality() {
+  const c = document.getElementById('app-sections');
+  coffeeStars = 0;
+  c.innerHTML = `
+    <div class="section-title">Calidad del café</div>
+    <div class="card">
+      <div class="card-title">Calibración de hoy</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
+        <div><div class="form-label">Dosis (g)</div><input type="number" class="form-input" id="cq-dose" placeholder="18.0" style="width:100px"></div>
+        <div><div class="form-label">Tiempo extracción (s)</div><input type="number" class="form-input" id="cq-time" placeholder="27" style="width:100px"></div>
+        <div><div class="form-label">Ratio salida (g)</div><input type="number" class="form-input" id="cq-ratio" placeholder="36" style="width:100px"></div>
+        <div><div class="form-label">Temperatura (°C)</div><input type="number" class="form-input" id="cq-temp" placeholder="93" style="width:100px"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Valoración</label><div class="stars" id="cq-stars">${[1,2,3,4,5].map(n=>`<span class="star" onclick="setCoffeeStar(${n})">★</span>`).join('')}</div></div>
+      <div class="form-row"><label class="form-label">Notas de sabor</label><textarea class="form-input" id="cq-notes" placeholder="Ej: acidez media, notas de frutos rojos, buen cuerpo..."></textarea></div>
+      <button class="btn-primary" id="cq-submit" onclick="submitCoffeeQuality()">Guardar calibración</button>
+      <div class="alert-banner alert-green" id="cq-success">Calibración guardada.</div>
+    </div>
+  `;
+}
+
+function setCoffeeStar(n) {
+  coffeeStars = n;
+  document.querySelectorAll('#cq-stars .star').forEach((s,i) => s.classList.toggle('on', i < n));
+}
+
+async function submitCoffeeQuality() {
+  const btn = document.getElementById('cq-submit');
+  btn.disabled = true;
+  await sb.from('ops_coffee_quality').insert({
+    local: currentUser.local,
+    submitted_by: currentUser.name,
+    log_date: new Date().toISOString().split('T')[0],
+    dose_g: parseFloat(document.getElementById('cq-dose').value) || null,
+    extraction_time_s: parseFloat(document.getElementById('cq-time').value) || null,
+    ratio_g: parseFloat(document.getElementById('cq-ratio').value) || null,
+    temperature_c: parseFloat(document.getElementById('cq-temp').value) || null,
+    rating: coffeeStars || null,
+    flavor_notes: document.getElementById('cq-notes').value,
+  });
+  btn.disabled = false;
+  const s = document.getElementById('cq-success');
+  s.classList.add('show');
+  setTimeout(() => s.classList.remove('show'), 3000);
+}
+
+// ── NOTICES ───────────────────────────────────────────────────
+async function renderNotices() {
+  const c = document.getElementById('app-sections');
+  const local = currentUser.local;
+  const { data: notices } = await sb.from('ops_notices').select('*').eq('active', true).order('created_at', { ascending: false });
+  const filtered = (notices||[]).filter(n => n.target === 'all' || n.target === local);
+  const isOwner = currentUser.role === 'owner';
+
+  let html = `<div class="section-title">Avisos</div>`;
+  if (isOwner) {
+    html += `<div class="card"><div class="card-title">Publicar aviso</div>
+      <div class="form-row"><label class="form-label">Mensaje</label><textarea class="form-input" id="notice-text" placeholder="Escribe un aviso para el equipo..."></textarea></div>
+      <div class="form-row"><label class="form-label">Destinatarios</label><select class="form-input" id="notice-target"><option value="all">Todos los locales</option><option value="juan_bravo">Solo Juan Bravo</option><option value="matbakh">Solo Matbakh</option></select></div>
+      <button class="btn-primary" onclick="postNotice()">Publicar</button>
+    </div>`;
+  }
+  html += `<div id="notices-list">${filtered.map(n => `
+    <div class="notice">
+      <div class="notice-from">${n.author} · ${n.target === 'all' ? 'Todos los locales' : localLabel(n.target)}</div>
+      <div class="notice-text">${n.message}</div>
+      <div class="notice-date">${new Date(n.created_at).toLocaleDateString('es-ES',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}</div>
+    </div>`).join('')}</div>`;
+  c.innerHTML = html;
+}
+
+async function postNotice() {
+  const txt = document.getElementById('notice-text').value.trim();
+  if (!txt) return;
+  const target = document.getElementById('notice-target').value;
+  await sb.from('ops_notices').insert({ author: currentUser.name, message: txt, target });
+  document.getElementById('notice-text').value = '';
+  renderNotices();
+}
+
+// ── SCHEDULE ──────────────────────────────────────────────────
+async function renderSchedule() {
+  const c = document.getElementById('app-sections');
+  const { data: schedules } = await sb.from('ops_schedules').select('*').order('week_start', { ascending: false }).limit(20);
+  const days = ['mon','tue','wed','thu','fri','sat','sun'];
+  const dayLabels = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+  function schedTable(local) {
+    const rows = (schedules||[]).filter(s => s.local === local);
+    if (!rows.length) return `<p style="font-size:14px;color:var(--text2);padding:1rem 0">Sin horarios registrados todavía.</p>`;
+    const week = rows[0].week_start;
+    const weekRows = rows.filter(r => r.week_start === week);
+    return `<p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(week).toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
+    <table class="sched-table"><thead><tr><th>Empleado</th>${dayLabels.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>
+    ${weekRows.map(r=>`<tr><td style="font-weight:500">${r.employee_name}</td>${days.map(d=>`<td>${r[d]?`<span class="shift-pill">${r[d]}</span>`:`<span class="shift-off">—</span>`}</td>`).join('')}</tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  c.innerHTML = `
+    <div class="section-title">Horarios semanales</div>
+    <div class="tabs"><button class="tab-btn active" onclick="switchTab('sch','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('sch','mb',this)">Matbakh</button></div>
+    <div class="tab-panel active" id="sch-jb"><div class="card">${schedTable('juan_bravo')}</div></div>
+    <div class="tab-panel" id="sch-mb"><div class="card">${schedTable('matbakh')}</div></div>
+    <div class="card" style="margin-top:1.5rem"><div class="card-title">Añadir turno</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label class="form-label">Local</label><select class="form-input" id="sch-local"><option value="juan_bravo">Juan Bravo</option><option value="matbakh">Matbakh</option></select></div>
+        <div><label class="form-label">Empleado</label><input class="form-input" id="sch-name" placeholder="Nombre"></div>
+        <div><label class="form-label">Semana (lunes)</label><input type="date" class="form-input" id="sch-week"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:1rem">
+        ${days.map((d,i)=>`<div><label class="form-label">${dayLabels[i]}</label><input class="form-input" id="sch-${d}" placeholder="—" style="font-size:12px;padding:6px"></div>`).join('')}
+      </div>
+      <button class="btn-primary" style="margin-top:1rem" onclick="saveSchedule()">Guardar turno</button>
+      <div class="alert-banner alert-green" id="sch-success">Turno guardado.</div>
+    </div>
+  `;
+}
+
+async function saveSchedule() {
+  const days = ['mon','tue','wed','thu','fri','sat','sun'];
+  const payload = {
+    local: document.getElementById('sch-local').value,
+    employee_name: document.getElementById('sch-name').value,
+    week_start: document.getElementById('sch-week').value,
+    created_by: currentUser.name,
+  };
+  days.forEach(d => { payload[d] = document.getElementById(`sch-${d}`).value || null; });
+  await sb.from('ops_schedules').insert(payload);
+  const s = document.getElementById('sch-success');
+  s.classList.add('show');
+  setTimeout(() => { s.classList.remove('show'); renderSchedule(); }, 1500);
+}
+
+// ── VACATIONS ─────────────────────────────────────────────────
+async function renderVacations() {
+  const c = document.getElementById('app-sections');
+  const isOwner = currentUser.role === 'owner';
+  const { data: vacs } = await sb.from('ops_vacations').select('*').order('created_at', { ascending: false });
+  const pending = (vacs||[]).filter(v => v.status === 'pending');
+  const approved = (vacs||[]).filter(v => v.status === 'approved');
+
+  let html = `<div class="section-title">Vacaciones y ausencias</div>`;
+  if (isOwner && pending.length) {
+    html += `<div class="card"><div class="card-title">Solicitudes pendientes</div>
+      ${pending.map(v => `<div class="vac-row" id="vac-${v.id}">
+        <div class="vac-name">${v.employee_name}</div>
+        <div class="vac-dates">${v.start_date} → ${v.end_date}${v.note?` · ${v.note}`:''}</div>
+        <span class="badge badge-pending">Pendiente</span>
+        <div class="vac-actions"><button class="btn-vac approve" onclick="reviewVac('${v.id}','approved')">Aprobar</button><button class="btn-vac deny" onclick="reviewVac('${v.id}','denied')">Denegar</button></div>
+      </div>`).join('')}
+    </div>`;
+  }
+  if (approved.length) {
+    html += `<div class="card"><div class="card-title">Aprobadas</div>
+      ${approved.map(v=>`<div class="vac-row"><div class="vac-name">${v.employee_name}</div><div class="vac-dates">${v.start_date} → ${v.end_date}</div><span class="badge badge-ok">Aprobada</span></div>`).join('')}
+    </div>`;
+  }
+  html += `<div class="card"><div class="card-title">Solicitar vacaciones</div>
+    <div class="form-row"><label class="form-label">Fecha de inicio</label><input type="date" class="form-input" id="vac-start"></div>
+    <div class="form-row"><label class="form-label">Fecha de fin</label><input type="date" class="form-input" id="vac-end"></div>
+    <div class="form-row"><label class="form-label">Nota (opcional)</label><textarea class="form-input" id="vac-note" placeholder="Motivo o comentario..."></textarea></div>
+    <button class="btn-primary" onclick="submitVacation()">Enviar solicitud</button>
+    <div class="alert-banner alert-green" id="vac-success">Solicitud enviada.</div>
+  </div>`;
+  c.innerHTML = html;
+}
+
+async function submitVacation() {
+  await sb.from('ops_vacations').insert({
+    employee_name: currentUser.name,
+    local: currentUser.local,
+    start_date: document.getElementById('vac-start').value,
+    end_date: document.getElementById('vac-end').value,
+    note: document.getElementById('vac-note').value,
+  });
+  document.getElementById('vac-success').classList.add('show');
+  setTimeout(renderVacations, 1500);
+}
+
+async function reviewVac(id, status) {
+  await sb.from('ops_vacations').update({ status, reviewed_by: currentUser.name, reviewed_at: new Date().toISOString() }).eq('id', id);
+  renderVacations();
+}
+
+// ── MY SCHEDULE (barista) ─────────────────────────────────────
+async function renderMySchedule() {
+  const c = document.getElementById('app-sections');
+  const { data: rows } = await sb.from('ops_schedules').select('*').eq('local', currentUser.local).eq('employee_name', currentUser.name).order('week_start', { ascending: false }).limit(1);
+  const row = rows?.[0];
+  const days = ['mon','tue','wed','thu','fri','sat','sun'];
+  const dayLabels = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  c.innerHTML = `<div class="section-title">Mi horario esta semana</div>
+  <div class="card">${row ? `
+    <p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(row.week_start).toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
+    <table class="sched-table"><thead><tr><th>Día</th><th>Turno</th></tr></thead><tbody>
+      ${days.map((d,i)=>`<tr><td>${dayLabels[i]}</td><td>${row[d]?`<span class="shift-pill">${row[d]}</span>`:`<span class="shift-off">Libre</span>`}</td></tr>`).join('')}
+    </tbody></table>` : `<p style="font-size:14px;color:var(--text2)">El encargado aún no ha publicado el horario de esta semana.</p>`}
+  </div>`;
+}
+
+// ── PROTOCOLS ─────────────────────────────────────────────────
+function renderProtocols() {
+  const c = document.getElementById('app-sections');
+  const local = currentUser.local || 'juan_bravo';
+  const protos = local === 'matbakh' ? PROTOS_MB : PROTOS_JB;
+  c.innerHTML = `<div class="section-title">Protocolos</div>
+    ${protos.map((p,i) => `
+    <div class="proto-item">
+      <div class="proto-header" onclick="toggleProto(${i})">
+        <div style="display:flex;align-items:center;gap:10px"><span class="proto-name">${p.title}</span><span class="proto-tag">${p.tag}</span></div>
+        <span class="proto-arrow" id="pa-${i}">▼</span>
+      </div>
+      <div class="proto-body" id="pb-${i}">
+        ${p.steps.map((s,si)=>`<div class="proto-step"><div class="proto-num">${si+1}</div><span>${s}</span></div>`).join('')}
+      </div>
+    </div>`).join('')}`;
+}
+function toggleProto(i) {
+  document.getElementById(`pb-${i}`).classList.toggle('open');
+  document.getElementById(`pa-${i}`).classList.toggle('open');
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function switchTab(group, id, btn) {
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll(`[id^="${group}-"]`).forEach(p => p.classList.remove('active'));
+  document.getElementById(`${group}-${id}`)?.classList.add('active');
+}
+
+// ── STATIC DATA ───────────────────────────────────────────────
+const STEPS_OPEN_JB = ["Revisar que el cierre dejó el local en condiciones","Calibrar el espresso — extraer y ajustar","Preparar o verificar Batch Brew","Verificar Square e iniciar caja con el fondo","Revisar baños — papel, jabón, limpieza","Pasar trapos con Sanytol por barra y superficies","Encender incienso","Sacar banco y cartel","Encender música","Abrir la puerta al público a las 08:00"];
+const STEPS_CLOSE_JB = ["Primer ciego con el portafiltro a las 18:30","Limpiar todas las mesas con Sanytol","Lavar todos los vasos en el lavavajillas","Limpiar el rinser de lava jarras","Dejar los baños limpios","Segundo ciego a las 18:55","Sacar basura y posos de café","Meter banco y cartel dentro","Cerrar sesión de Square","Contar caja y guardar efectivo en sobre"];
+const STEPS_OPEN_MB = ["Revisar que el cierre dejó el local en condiciones","Calibrar el espresso","Preparar o verificar Batch Brew","Verificar Square e iniciar caja","Encender luces de la sala de abajo","Revisar baños","Comprobar cubiertos limpios y en su sitio","Comprobar vasos limpios y en su sitio","Pasar trapos con Sanytol","Encender incienso","Sacar banco y cartel","Encender música","Abrir la puerta al público a las 08:00"];
+const STEPS_CLOSE_MB = ["Primer ciego con el portafiltro a las 18:30","Limpiar todas las mesas con Sanytol","Lavar vasos y cubiertos en el lavavajillas","Limpiar el rinser de lava jarras","Apagar luces de la sala de abajo","Dejar los baños limpios","Segundo ciego a las 18:55","Sacar basura y posos de café","Meter banco y cartel dentro","Cerrar sesión de Square","Contar caja y guardar efectivo en sobre"];
+const PROTOS_JB = [
+  {title:"Apertura",tag:"Diario",steps:STEPS_OPEN_JB},
+  {title:"Cierre",tag:"Diario",steps:STEPS_CLOSE_JB},
+  {title:"Calibración del espresso",tag:"Diario",steps:["Encender la máquina y esperar temperatura estable","Preparar dosis base (18g)","Extraer y medir tiempo (objetivo 25-30s)","Ajustar molino si es necesario (más fino = más tiempo)","Probar en taza y anotar en app","Repetir hasta conseguir ratio correcto"]},
+  {title:"Limpieza de máquina",tag:"Diario",steps:["Primer ciego a las 18:30 con portafiltro ciego","Pastilla de limpieza una vez por semana","Limpiar vaporizador después de cada uso","Segundo ciego al cierre","Limpiar bandeja y exterior con bayeta"]},
+  {title:"Gestión de incidencias",tag:"Protocolo",steps:["Identificar el problema y categoría","Si es resoluble en 5 min, resolverlo directamente","Si no, llamar al contacto correspondiente","Anotar en el parte diario con hora y solución","Si supera tu autoridad, avisar a Diyar ese mismo día"]},
+  {title:"Pedidos a proveedores",tag:"Semanal",steps:["Revisar stock en la app cada lunes","Leche oat a Disbesa: pedir lunes o martes","Vasos a Envapro: cuando baje del mínimo","Usar el correo habilitado para proveedores","Café verde: avisar a Diyar, no pedir directamente"]}
+];
+const PROTOS_MB = [
+  {title:"Apertura — Matbakh",tag:"Diario",steps:STEPS_OPEN_MB},
+  {title:"Cierre — Matbakh",tag:"Diario",steps:STEPS_CLOSE_MB},
+  {title:"Luces de la sala",tag:"Apertura",steps:["Encender luces de planta entrada","Encender luces sala de abajo (panel izquierdo)","Encender luces de ambiente / barra","Al cierre: apagar en orden inverso"]},
+  {title:"Calibración del espresso",tag:"Diario",steps:["Encender la máquina y esperar temperatura estable","Preparar dosis base (18g)","Extraer y medir tiempo (objetivo 25-30s)","Ajustar molino si es necesario","Probar en taza y anotar en app"]},
+  {title:"Gestión de incidencias",tag:"Protocolo",steps:["Identificar el problema","Si es resoluble en 5 min, resolverlo directamente","Si no, llamar al contacto correspondiente","Anotar en el parte diario","Si supera tu autoridad, avisar a Diyar"]},
+  {title:"Pedidos a Makro",tag:"Semanal",steps:["Revisar stock cada inicio de semana","Hacer lista consolidada antes de ir","Priorizar productos bajo mínimo (marcados en rojo en la app)","Guardar ticket para registro de gastos","Actualizar cantidades en la app al volver"]}
+];
+</script>
+</body>
+</html>

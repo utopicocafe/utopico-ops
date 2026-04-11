@@ -571,28 +571,19 @@ async function postNotice() {
   renderNotices();
 }
 
+
 // ── SCHEDULE ──────────────────────────────────────────────────
 async function renderSchedule() {
   const c = document.getElementById('app-sections');
-  const { data: schedules } = await sb.from('ops_schedules').select('*').order('week_start', { ascending: false }).limit(20);
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayLabels = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   const isOwner = currentUser.role === 'owner';
-
-  function schedTable(local) {
-    const rows = (schedules||[]).filter(s => s.local === local);
-    if (!rows.length) return `<p style="font-size:14px;color:var(--text2);padding:1rem 0">Sin horarios registrados todavía.</p>`;
-    const week = rows[0].week_start;
-    const weekRows = rows.filter(r => r.week_start === week);
-    return `<p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(week+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
-    <table class="sched-table"><thead><tr><th>Empleado</th>${dayLabels.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>
-    ${weekRows.map(r=>`<tr><td style="font-weight:500">${r.employee_name}</td>${days.map(d=>`<td>${r[d]?`<span class="shift-pill">${r[d]}</span>`:`<span class="shift-off">—</span>`}</td>`).join('')}</tr>`).join('')}
-    </tbody></table>`;
-  }
-
+  const isManager = currentUser.role === 'manager';
+  const canEdit = isOwner || isManager;
   const local = currentUser.local;
+
+  const { data: schedules } = await sb.from('ops_schedules').select('*').order('week_start', { ascending: false }).limit(30);
   const { data: vacs } = await sb.from('ops_vacations').select('*').eq('status','approved').order('start_date');
-  const { data: suggestions } = await sb.from('ops_notices').select('*').eq('target', local === 'juan_bravo' ? 'juan_bravo' : 'matbakh').ilike('message','%sugerencia%').order('created_at',{ascending:false}).limit(5);
 
   function vacsForLocal(loc) {
     const v = (vacs||[]).filter(x => x.local === loc);
@@ -600,71 +591,127 @@ async function renderSchedule() {
     return v.map(x=>`<div class="vac-row"><div class="vac-name">${x.employee_name}</div><div class="vac-dates">${x.start_date} → ${x.end_date}</div><span class="badge badge-ok">Aprobada</span></div>`).join('');
   }
 
-  let html = `<div class="section-title">Horarios y vacaciones</div>`;
+  function schedTable(loc) {
+    const rows = (schedules||[]).filter(s => s.local === loc);
+    if (!rows.length) return `<p style="font-size:14px;color:var(--text2);padding:1rem 0">Sin horarios registrados todavía.</p>`;
+    const week = rows[0].week_start;
+    const weekRows = rows.filter(r => r.week_start === week);
+    const editBtns = canEdit && (isOwner || loc === local);
+    return `<p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(week+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
+    <div style="overflow-x:auto"><table class="sched-table"><thead><tr><th>Empleado</th>${dayLabels.map(d=>`<th>${d}</th>`).join('')}${editBtns?'<th></th>':''}</tr></thead><tbody>
+    ${weekRows.map(r=>`<tr>
+      <td style="font-weight:500">${r.employee_name}</td>
+      ${days.map(d=>`<td>${r[d]?`<span class="shift-pill">${r[d]}</span>`:`<span class="shift-off">—</span>`}</td>`).join('')}
+      ${editBtns?`<td><button style="font-size:11px;padding:2px 8px;border-radius:5px;border:0.5px solid var(--border);background:none;color:var(--text2);cursor:pointer" onclick="editShift('${r.id}','${r.employee_name}','${loc}')">Editar</button> <button style="font-size:11px;padding:2px 8px;border-radius:5px;border:0.5px solid var(--red);background:none;color:var(--red);cursor:pointer" onclick="deleteShift('${r.id}')">Borrar</button></td>`:''}
+    </tr>`).join('')}
+    </tbody></table></div>`;
+  }
+
+  function addForm(loc) {
+    return `<div class="card" id="add-shift-card-${loc}"><div class="card-title">Añadir / editar turno</div>
+      <input type="hidden" id="sch-edit-id-${loc}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><label class="form-label">Empleado</label><input class="form-input" id="sch-name-${loc}" placeholder="Nombre completo"></div>
+        <div><label class="form-label">Semana (lunes)</label><input type="date" class="form-input" id="sch-week-${loc}"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:12px">
+        ${days.map((d,i)=>`<div><label class="form-label">${dayLabels[i]}</label><input class="form-input" id="sch-${d}-${loc}" placeholder="—" style="font-size:11px;padding:5px 6px"></div>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="saveShift('${loc}')">Guardar turno</button>
+        <button style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;color:var(--text2);cursor:pointer;font-family:var(--font)" onclick="clearShiftForm('${loc}')">Limpiar</button>
+      </div>
+      <div class="alert-banner alert-green" id="sch-ok-${loc}">Turno guardado.</div>
+    </div>`;
+  }
+
+  let html = `<div class="section-title">Horarios</div>`;
 
   if (isOwner) {
     html += `<div class="tabs"><button class="tab-btn active" onclick="switchTab('sch','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('sch','mb',this)">Matbakh</button></div>
     <div class="tab-panel active" id="sch-jb">
       <div class="card">${schedTable('juan_bravo')}</div>
+      ${addForm('juan_bravo')}
       <div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('juan_bravo')}</div>
     </div>
     <div class="tab-panel" id="sch-mb">
       <div class="card">${schedTable('matbakh')}</div>
+      ${addForm('matbakh')}
       <div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('matbakh')}</div>
     </div>`;
-    html += `<div class="card" style="margin-top:1.5rem"><div class="card-title">Añadir turno</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="form-label">Local</label><select class="form-input" id="sch-local"><option value="juan_bravo">Juan Bravo</option><option value="matbakh">Matbakh</option></select></div>
-        <div><label class="form-label">Empleado</label><input class="form-input" id="sch-name" placeholder="Nombre"></div>
-        <div><label class="form-label">Semana (lunes)</label><input type="date" class="form-input" id="sch-week"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:1rem">
-        ${days.map((d,i)=>`<div><label class="form-label">${dayLabels[i]}</label><input class="form-input" id="sch-${d}" placeholder="—" style="font-size:12px;padding:6px"></div>`).join('')}
-      </div>
-      <button class="btn-primary" style="margin-top:1rem" onclick="saveSchedule()">Guardar turno</button>
-      <div class="alert-banner alert-green" id="sch-success">Turno guardado.</div>
-    </div>`;
+  } else if (isManager) {
+    html += `<div class="card">${schedTable(local)}</div>`;
+    html += addForm(local);
+    html += `<div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsForLocal(local)}</div>`;
   } else {
     html += `<div class="card">${schedTable(local)}</div>`;
     html += `<div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsForLocal(local)}</div>`;
     html += `<div class="card"><div class="card-title">Sugerir cambio de turno</div>
       <div class="form-row"><label class="form-label">¿Qué cambio propones?</label>
-        <textarea class="form-input" id="sug-text" placeholder="Ej: el jueves 15 necesito cambiar mi turno con Barista 2..."></textarea>
+        <textarea class="form-input" id="sug-text" placeholder="Ej: el jueves 15 necesito cambiar mi turno..."></textarea>
       </div>
       <button class="btn-primary" onclick="sendSuggestion()">Enviar sugerencia</button>
-      <div class="alert-banner alert-green" id="sug-ok">Sugerencia enviada a Diyar.</div>
+      <div class="alert-banner alert-green" id="sug-ok">Sugerencia enviada.</div>
     </div>`;
   }
 
   c.innerHTML = html;
 }
 
+async function saveShift(loc) {
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const editId = document.getElementById(`sch-edit-id-${loc}`).value;
+  const payload = {
+    local: loc,
+    employee_name: document.getElementById(`sch-name-${loc}`).value,
+    week_start: document.getElementById(`sch-week-${loc}`).value,
+  };
+  days.forEach(d => { payload[d] = document.getElementById(`sch-${d}-${loc}`).value || null; });
+  if (!payload.employee_name || !payload.week_start) return;
+  if (editId) {
+    await sb.from('ops_schedules').update(payload).eq('id', editId);
+  } else {
+    await sb.from('ops_schedules').insert(payload);
+  }
+  const ok = document.getElementById(`sch-ok-${loc}`);
+  ok.classList.add('show');
+  setTimeout(() => { ok.classList.remove('show'); renderSchedule(); }, 1500);
+}
+
+async function deleteShift(id) {
+  if (!confirm('¿Borrar este turno?')) return;
+  await sb.from('ops_schedules').delete().eq('id', id);
+  renderSchedule();
+}
+
+function editShift(id, name, loc) {
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const { data } = sb.from('ops_schedules').select('*').eq('id', id);
+  document.getElementById(`sch-edit-id-${loc}`).value = id;
+  document.getElementById(`sch-name-${loc}`).value = name;
+  sb.from('ops_schedules').select('*').eq('id', id).single().then(({data: r}) => {
+    if (!r) return;
+    document.getElementById(`sch-week-${loc}`).value = r.week_start;
+    days.forEach(d => { document.getElementById(`sch-${d}-${loc}`).value = r[d] || ''; });
+    document.getElementById(`add-shift-card-${loc}`).scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+function clearShiftForm(loc) {
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  document.getElementById(`sch-edit-id-${loc}`).value = '';
+  document.getElementById(`sch-name-${loc}`).value = '';
+  document.getElementById(`sch-week-${loc}`).value = '';
+  days.forEach(d => { document.getElementById(`sch-${d}-${loc}`).value = ''; });
+}
+
 async function sendSuggestion() {
   const txt = document.getElementById('sug-text').value.trim();
   if (!txt) return;
-  await sb.from('ops_notices').insert({
-    author: currentUser.name,
-    message: `Sugerencia de ${currentUser.name}: ${txt}`,
-    target: currentUser.local
-  });
+  await sb.from('ops_notices').insert({ author: currentUser.name, message: `Sugerencia de ${currentUser.name}: ${txt}`, target: currentUser.local });
   document.getElementById('sug-ok').classList.add('show');
   document.getElementById('sug-text').value = '';
   setTimeout(() => document.getElementById('sug-ok').classList.remove('show'), 2500);
-}
-
-async function saveSchedule() {
-  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-  const payload = {
-    local: document.getElementById('sch-local').value,
-    employee_name: document.getElementById('sch-name').value,
-    week_start: document.getElementById('sch-week').value,
-    created_by: currentUser.name,
-  };
-  days.forEach(d => { payload[d] = document.getElementById(`sch-${d}`).value || null; });
-  await sb.from('ops_schedules').insert(payload);
-  const s = document.getElementById('sch-success');
-  s.classList.add('show');
-  setTimeout(() => { s.classList.remove('show'); renderSchedule(); }, 1500);
 }
 
 // ── VACATIONS ─────────────────────────────────────────────────

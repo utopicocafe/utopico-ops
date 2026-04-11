@@ -2,8 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Utópico Coffee — Ops</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Utopico Ops</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Utopico">
+<meta name="theme-color" content="#1C1B1B">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -995,6 +1002,10 @@ const PROTOS_MB = [
   {title:"Gestión de incidencias",tag:"Protocolo",steps:["Identificar el problema","Si es resoluble en 5 min, resolverlo directamente","Si no, llamar al contacto correspondiente","Anotar en el parte diario","Si supera tu autoridad, avisar a Diyar"]},
   {title:"Pedidos a Makro",tag:"Semanal",steps:["Revisar stock cada inicio de semana","Hacer lista consolidada antes de ir","Priorizar productos bajo mínimo (marcados en rojo en la app)","Guardar ticket para registro de gastos","Actualizar cantidades en la app al volver"]}
 ];
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>

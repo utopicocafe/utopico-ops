@@ -156,13 +156,24 @@ select.form-input{cursor:pointer}
 <body>
 <div class="app">
 
+<!-- USER SELECTION SCREEN -->
+<div class="screen active" id="screen-users">
+  <div class="login-wrap">
+    <div><div class="logo">UTÓPICO COFFEE</div><div class="logo-sub">Utopia is a state of mind</div></div>
+    <div style="font-size:12px;color:var(--text2);text-align:center">¿Quién eres?</div>
+    <div id="user-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:480px">
+      <div class="loading"><span class="spinner"></span></div>
+    </div>
+  </div>
+</div>
+
 <!-- LOGIN SCREEN -->
-<div class="screen active" id="screen-login">
+<div class="screen" id="screen-login">
   <div class="login-wrap">
     <div><div class="logo">UTÓPICO COFFEE</div><div class="logo-sub">Utopia is a state of mind</div></div>
     <div class="pin-card">
-      <div class="pin-title">Introduce tu PIN</div>
-      <div class="pin-sub" id="pin-sub">4 dígitos</div>
+      <div class="pin-title" id="pin-username">Introduce tu PIN</div>
+      <div class="pin-sub">4 dígitos</div>
       <div class="pin-display" id="pin-display">––––</div>
       <div class="pin-grid">
         <button class="pin-btn" onclick="pinPress('1')">1</button>
@@ -179,6 +190,7 @@ select.form-input{cursor:pointer}
         <button class="pin-btn" onclick="pinBack()">⌫</button>
       </div>
       <div class="pin-error" id="pin-error"></div>
+      <div style="margin-top:1rem;font-size:12px;color:var(--text2);cursor:pointer" onclick="backToUsers()">← Volver</div>
     </div>
   </div>
 </div>
@@ -224,6 +236,41 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let pinInput = '';
 let invCache = {};
+let selectedUser = null;
+
+// ── LOAD USERS ────────────────────────────────────────────────
+async function loadUsers() {
+  const { data: users } = await sb.from('ops_users').select('*').eq('active', true).order('name');
+  const grid = document.getElementById('user-grid');
+  if (!users || !users.length) { grid.innerHTML = '<p style="color:var(--text2);font-size:13px">Sin usuarios.</p>'; return; }
+  const roleLabel = { owner: 'Propietario', manager: 'Encargado', barista: 'Barista' };
+  const initials = n => n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const colors = ['#fff','#1a2a3a','#1a2e26','#2e2200','#2e1a22','#2a1a2e'];
+  const textColors = ['#1C1B1B','#7ab4e0','#5ec4a0','#c8920a','#c47090','#a090c0'];
+  grid.innerHTML = users.map((u,i) => `
+    <div class="pin-card" style="cursor:pointer;padding:1.25rem .75rem" onclick='pickUser(${JSON.stringify(u).replace(/"/g,'&quot;')})'>
+      <div style="width:36px;height:36px;border-radius:50%;background:${colors[i%colors.length]};color:${textColors[i%textColors.length]};display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:13px;font-weight:500">${initials(u.name)}</div>
+      <div style="font-size:13px;font-weight:500;color:var(--text)">${u.name}</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">${roleLabel[u.role]}</div>
+    </div>`).join('');
+}
+
+function pickUser(user) {
+  selectedUser = user;
+  pinInput = '';
+  renderPinDisplay();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-username').textContent = `Hola, ${user.name}`;
+  document.getElementById('screen-users').classList.remove('active');
+  document.getElementById('screen-login').classList.add('active');
+}
+
+function backToUsers() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-users').classList.add('active');
+  pinInput = '';
+  renderPinDisplay();
+}
 
 // ── PIN ──────────────────────────────────────────────────────
 function pinPress(d) {
@@ -236,17 +283,18 @@ function pinBack() { pinInput = pinInput.slice(0,-1); renderPinDisplay(); }
 function pinClear() { pinInput = ''; renderPinDisplay(); document.getElementById('pin-error').textContent = ''; }
 function renderPinDisplay() {
   const d = document.getElementById('pin-display');
-  d.textContent = '●'.repeat(pinInput.length) + '–'.repeat(4 - pinInput.length);
+  if (d) d.textContent = '●'.repeat(pinInput.length) + '–'.repeat(4 - pinInput.length);
 }
+
 async function tryLogin() {
-  const { data, error } = await sb.from('ops_users').select('*').eq('pin', pinInput).eq('active', true).single();
-  if (error || !data) {
+  if (!selectedUser) return;
+  if (pinInput !== selectedUser.pin) {
     document.getElementById('pin-error').textContent = 'PIN incorrecto';
     pinInput = '';
     renderPinDisplay();
     return;
   }
-  currentUser = data;
+  currentUser = { ...selectedUser };
   pinInput = '';
   renderPinDisplay();
   document.getElementById('pin-error').textContent = '';
@@ -264,13 +312,18 @@ function selectLocal(local) {
   document.getElementById('screen-local').classList.remove('active');
   showApp();
 }
+
 function logout() {
   currentUser = null;
+  selectedUser = null;
   invCache = {};
   document.getElementById('screen-app').classList.remove('active');
   document.getElementById('screen-local').classList.remove('active');
-  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-users').classList.add('active');
 }
+
+loadUsers();
 
 // ── APP SHELL ─────────────────────────────────────────────────
 function showApp() {

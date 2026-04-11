@@ -591,17 +591,27 @@ async function renderSchedule() {
   }
 
   const local = currentUser.local;
-  let html = `<div class="section-title">Horarios semanales</div>`;
+  const { data: vacs } = await sb.from('ops_vacations').select('*').eq('status','approved').order('start_date');
+  const { data: suggestions } = await sb.from('ops_notices').select('*').eq('target', local === 'juan_bravo' ? 'juan_bravo' : 'matbakh').ilike('message','%sugerencia%').order('created_at',{ascending:false}).limit(5);
+
+  function vacsForLocal(loc) {
+    const v = (vacs||[]).filter(x => x.local === loc);
+    if (!v.length) return `<p style="font-size:13px;color:var(--text2)">Sin vacaciones aprobadas próximamente.</p>`;
+    return v.map(x=>`<div class="vac-row"><div class="vac-name">${x.employee_name}</div><div class="vac-dates">${x.start_date} → ${x.end_date}</div><span class="badge badge-ok">Aprobada</span></div>`).join('');
+  }
+
+  let html = `<div class="section-title">Horarios y vacaciones</div>`;
 
   if (isOwner) {
     html += `<div class="tabs"><button class="tab-btn active" onclick="switchTab('sch','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('sch','mb',this)">Matbakh</button></div>
-    <div class="tab-panel active" id="sch-jb"><div class="card">${schedTable('juan_bravo')}</div></div>
-    <div class="tab-panel" id="sch-mb"><div class="card">${schedTable('matbakh')}</div></div>`;
-  } else {
-    html += `<div class="card">${schedTable(local)}</div>`;
-  }
-
-  if (isOwner) {
+    <div class="tab-panel active" id="sch-jb">
+      <div class="card">${schedTable('juan_bravo')}</div>
+      <div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('juan_bravo')}</div>
+    </div>
+    <div class="tab-panel" id="sch-mb">
+      <div class="card">${schedTable('matbakh')}</div>
+      <div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('matbakh')}</div>
+    </div>`;
     html += `<div class="card" style="margin-top:1.5rem"><div class="card-title">Añadir turno</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div><label class="form-label">Local</label><select class="form-input" id="sch-local"><option value="juan_bravo">Juan Bravo</option><option value="matbakh">Matbakh</option></select></div>
@@ -614,9 +624,32 @@ async function renderSchedule() {
       <button class="btn-primary" style="margin-top:1rem" onclick="saveSchedule()">Guardar turno</button>
       <div class="alert-banner alert-green" id="sch-success">Turno guardado.</div>
     </div>`;
+  } else {
+    html += `<div class="card">${schedTable(local)}</div>`;
+    html += `<div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsForLocal(local)}</div>`;
+    html += `<div class="card"><div class="card-title">Sugerir cambio de turno</div>
+      <div class="form-row"><label class="form-label">¿Qué cambio propones?</label>
+        <textarea class="form-input" id="sug-text" placeholder="Ej: el jueves 15 necesito cambiar mi turno con Barista 2..."></textarea>
+      </div>
+      <button class="btn-primary" onclick="sendSuggestion()">Enviar sugerencia</button>
+      <div class="alert-banner alert-green" id="sug-ok">Sugerencia enviada a Diyar.</div>
+    </div>`;
   }
 
   c.innerHTML = html;
+}
+
+async function sendSuggestion() {
+  const txt = document.getElementById('sug-text').value.trim();
+  if (!txt) return;
+  await sb.from('ops_notices').insert({
+    author: currentUser.name,
+    message: `Sugerencia de ${currentUser.name}: ${txt}`,
+    target: currentUser.local
+  });
+  document.getElementById('sug-ok').classList.add('show');
+  document.getElementById('sug-text').value = '';
+  setTimeout(() => document.getElementById('sug-ok').classList.remove('show'), 2500);
 }
 
 async function saveSchedule() {
@@ -690,14 +723,24 @@ async function renderMySchedule() {
   const c = document.getElementById('app-sections');
   const { data: rows } = await sb.from('ops_schedules').select('*').eq('local', currentUser.local).eq('employee_name', currentUser.name).order('week_start', { ascending: false }).limit(1);
   const row = rows?.[0];
-  const days = ['mon','tue','wed','thu','fri','sat','sun'];
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayLabels = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const { data: vacs } = await sb.from('ops_vacations').select('*').eq('local', currentUser.local).eq('status','approved').order('start_date');
+  const vacsHtml = (vacs||[]).length ? (vacs||[]).map(x=>`<div class="vac-row"><div class="vac-name">${x.employee_name}</div><div class="vac-dates">${x.start_date} → ${x.end_date}</div><span class="badge badge-ok">Aprobada</span></div>`).join('') : `<p style="font-size:13px;color:var(--text2)">Sin vacaciones próximamente.</p>`;
   c.innerHTML = `<div class="section-title">Mi horario esta semana</div>
   <div class="card">${row ? `
-    <p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(row.week_start).toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:1rem">Semana del ${new Date(row.week_start+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long'})}</p>
     <table class="sched-table"><thead><tr><th>Día</th><th>Turno</th></tr></thead><tbody>
       ${days.map((d,i)=>`<tr><td>${dayLabels[i]}</td><td>${row[d]?`<span class="shift-pill">${row[d]}</span>`:`<span class="shift-off">Libre</span>`}</td></tr>`).join('')}
     </tbody></table>` : `<p style="font-size:14px;color:var(--text2)">El encargado aún no ha publicado el horario de esta semana.</p>`}
+  </div>
+  <div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsHtml}</div>
+  <div class="card"><div class="card-title">Sugerir cambio de turno</div>
+    <div class="form-row"><label class="form-label">¿Qué cambio propones?</label>
+      <textarea class="form-input" id="sug-text" placeholder="Ej: el jueves 15 necesito cambiar mi turno con otro barista..."></textarea>
+    </div>
+    <button class="btn-primary" onclick="sendSuggestion()">Enviar sugerencia</button>
+    <div class="alert-banner alert-green" id="sug-ok">Sugerencia enviada.</div>
   </div>`;
 }
 

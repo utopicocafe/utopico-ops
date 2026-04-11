@@ -144,6 +144,11 @@ select.form-input{cursor:pointer}
 .alert-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
 .alert-row:last-child{border-bottom:none}
 .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.alert-banner{border-radius:8px;padding:.625rem .875rem;font-size:12px;border:0.5px solid;margin-top:.875rem;display:none}
+.alert-banner.show{display:block}
+.alert-banner.alert-green{background:#1a3300;border-color:#7ec850;color:#7ec850}
+.alert-banner.alert-amber{background:#3a2800;border-color:#f0a030;color:#f0a030}
+.alert-banner.alert-red{background:#3a0000;border-color:var(--red);color:var(--red)}
 
 /* LOADING */
 .loading{text-align:center;padding:2rem;color:var(--text2);font-size:14px}
@@ -159,7 +164,7 @@ select.form-input{cursor:pointer}
 <!-- USER SELECTION SCREEN -->
 <div class="screen active" id="screen-users">
   <div class="login-wrap">
-    <div><div class="logo">UTÓPICO COFFEE</div><div class="logo-sub">Utopia is a state of mind</div></div>
+    <div><div class="logo" style="text-align:center">UTOPICO</div><div class="logo-sub" style="text-align:center">UTOPIA IS A STATE OF MIND</div></div>
     <div style="font-size:12px;color:var(--text2);text-align:center">¿Quién eres?</div>
     <div id="user-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:480px">
       <div class="loading"><span class="spinner"></span></div>
@@ -170,7 +175,7 @@ select.form-input{cursor:pointer}
 <!-- LOGIN SCREEN -->
 <div class="screen" id="screen-login">
   <div class="login-wrap">
-    <div><div class="logo">UTÓPICO COFFEE</div><div class="logo-sub">Utopia is a state of mind</div></div>
+    <div><div class="logo" style="text-align:center">UTOPICO</div><div class="logo-sub" style="text-align:center">UTOPIA IS A STATE OF MIND</div></div>
     <div class="pin-card">
       <div class="pin-title" id="pin-username">Introduce tu PIN</div>
       <div class="pin-sub">4 dígitos</div>
@@ -198,7 +203,7 @@ select.form-input{cursor:pointer}
 <!-- LOCAL SELECTION SCREEN -->
 <div class="screen" id="screen-local">
   <div class="login-wrap">
-    <div><div class="logo">UTÓPICO COFFEE</div><div class="logo-sub">Utopia is a state of mind</div></div>
+    <div><div class="logo" style="text-align:center">UTOPICO</div><div class="logo-sub" style="text-align:center">UTOPIA IS A STATE OF MIND</div></div>
     <div style="font-size:14px;color:var(--text2);text-align:center" id="local-select-name"></div>
     <div style="font-size:13px;color:var(--text2);text-align:center">¿En qué local trabajas hoy?</div>
     <div style="display:flex;gap:12px;width:100%;max-width:360px">
@@ -219,7 +224,7 @@ select.form-input{cursor:pointer}
 <!-- APP SHELL -->
 <div class="screen" id="screen-app">
   <div class="topbar">
-    <div><div class="topbar-brand">UTÓPICO COFFEE</div><div class="topbar-role" id="app-role-label"></div></div>
+    <div><div class="topbar-brand">UTOPICO</div><div class="topbar-role" id="app-role-label"></div></div>
     <button class="btn-sm" onclick="logout()">Salir</button>
   </div>
   <div class="nav" id="app-nav"></div>
@@ -436,12 +441,33 @@ async function renderInventory() {
 
   if (isOwner) {
     html += `<div class="tabs"><button class="tab-btn active" onclick="switchTab('inv','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('inv','mb',this)">Matbakh</button></div>
-    <div class="tab-panel active" id="inv-jb">${buildInvTable(items,'juan_bravo',false)}</div>
-    <div class="tab-panel" id="inv-mb">${buildInvTable(items,'matbakh',false)}</div>`;
+    <div class="tab-panel active" id="inv-jb">${buildInvTable(items,'juan_bravo',false)}${addProductForm('juan_bravo')}</div>
+    <div class="tab-panel" id="inv-mb">${buildInvTable(items,'matbakh',false)}${addProductForm('matbakh')}</div>`;
   } else {
     html += buildInvTable(items, currentUser.local, editable);
+    html += addProductForm(currentUser.local);
   }
   c.innerHTML = html;
+}
+
+function addProductForm(local) {
+  const cats = local === 'matbakh'
+    ? ['cafe','leches','consumibles','limpieza','bakery','congelados','bebidas','verdura','carnes']
+    : ['cafe','leches','consumibles','limpieza'];
+  const catLabels = {cafe:'Café',leches:'Leches',consumibles:'Consumibles',limpieza:'Limpieza',bakery:'Bakery',congelados:'Congelados',bebidas:'Bebidas',verdura:'Verdura y fruta',carnes:'Carnes'};
+  return `<div class="card" style="margin-top:.875rem">
+    <div class="card-title">Añadir producto</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label class="form-label">Nombre</label><input class="form-input" id="np-name-${local}" placeholder="Ej: Leche coco"></div>
+      <div><label class="form-label">Categoría</label><select class="form-input" id="np-cat-${local}">${cats.map(c=>`<option value="${c}">${catLabels[c]}</option>`).join('')}</select></div>
+      <div><label class="form-label">Cantidad inicial</label><input type="number" class="form-input" id="np-qty-${local}" placeholder="0" min="0"></div>
+      <div><label class="form-label">Cantidad mínima</label><input type="number" class="form-input" id="np-min-${local}" placeholder="0" min="0"></div>
+      <div><label class="form-label">Unidad</label><input class="form-input" id="np-unit-${local}" placeholder="ud / kg / L / paq..."></div>
+    </div>
+    <button class="btn-primary" onclick="addProduct('${local}')">Añadir producto</button>
+    <div class="alert-banner alert-green" id="np-ok-${local}">Producto añadido.</div>
+    <div class="alert-banner alert-red" id="np-err-${local}">Rellena todos los campos.</div>
+  </div>`;
 }
 
 function buildInvTable(items, local, editable) {
@@ -464,6 +490,21 @@ function buildInvTable(items, local, editable) {
 
 function catLabel(c) {
   return {cafe:'Café',leches:'Leches',consumibles:'Consumibles',limpieza:'Limpieza',comida:'Comida / Cocina',bakery:'Bakery',congelados:'Congelados',bebidas:'Bebidas',verdura:'Verdura y fruta',carnes:'Carnes'}[c] || c;
+}
+
+async function addProduct(local) {
+  const name = document.getElementById(`np-name-${local}`).value.trim();
+  const cat = document.getElementById(`np-cat-${local}`).value;
+  const qty = parseFloat(document.getElementById(`np-qty-${local}`).value) || 0;
+  const min = parseFloat(document.getElementById(`np-min-${local}`).value) || 0;
+  const unit = document.getElementById(`np-unit-${local}`).value.trim();
+  const errEl = document.getElementById(`np-err-${local}`);
+  const okEl = document.getElementById(`np-ok-${local}`);
+  if (!name || !unit) { errEl.classList.add('show'); setTimeout(() => errEl.classList.remove('show'), 2500); return; }
+  await sb.from('ops_inventory').insert({ local, category: cat, name, quantity: qty, min_quantity: min, unit, updated_by: currentUser.name });
+  okEl.classList.add('show');
+  ['np-name','np-qty','np-min','np-unit'].forEach(id => { document.getElementById(`${id}-${local}`).value = ''; });
+  setTimeout(() => { okEl.classList.remove('show'); renderInventory(); }, 1500);
 }
 
 async function updateQty(id, delta) {

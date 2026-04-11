@@ -480,9 +480,15 @@ function buildInvTable(items, local, editable) {
       const qty = item.quantity;
       const st = qty <= 0 ? 'out' : qty < item.min_quantity ? 'low' : 'ok';
       const ctrl = editable
-        ? `<div class="inv-controls"><button class="inv-qty-btn" onclick="updateQty('${item.id}',-1)">−</button><span class="inv-qty-val" id="qty-${item.id}">${qty}</span><button class="inv-qty-btn" onclick="updateQty('${item.id}',1)">+</button></div>`
+        ? `<div class="inv-controls">
+            <button class="inv-qty-btn" onclick="updateQty('${item.id}',-1)">−</button>
+            <span class="inv-qty-val" id="qty-${item.id}">${qty}</span>
+            <button class="inv-qty-btn" onclick="updateQty('${item.id}',1)">+</button>
+            <button style="font-size:11px;padding:2px 7px;border-radius:5px;border:0.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;margin-left:4px" onclick="editProduct('${item.id}')">✎</button>
+            <button style="font-size:11px;padding:2px 7px;border-radius:5px;border:0.5px solid var(--red);background:none;color:var(--red);cursor:pointer" onclick="deleteProduct('${item.id}')">✕</button>
+           </div>`
         : `<span class="inv-qty-val">${qty}</span>`;
-      html += `<div class="inv-row"><div class="inv-dot ${st}"></div><div class="inv-name">${item.name}</div><div class="inv-unit">${item.unit}</div>${ctrl}</div>`;
+      html += `<div class="inv-row" id="invrow-${item.id}"><div class="inv-dot ${st}"></div><div class="inv-name">${item.name}<br><span style="font-size:10px;color:var(--text3)">mín. ${item.min_quantity} ${item.unit}</span></div><div class="inv-unit">${item.unit}</div>${ctrl}</div>`;
     });
   });
   return html + '</div>';
@@ -505,6 +511,25 @@ async function addProduct(local) {
   okEl.classList.add('show');
   ['np-name','np-qty','np-min','np-unit'].forEach(id => { document.getElementById(`${id}-${local}`).value = ''; });
   setTimeout(() => { okEl.classList.remove('show'); renderInventory(); }, 1500);
+}
+
+async function deleteProduct(id) {
+  if (!confirm('¿Borrar este producto del inventario?')) return;
+  await sb.from('ops_inventory').delete().eq('id', id);
+  renderInventory();
+}
+
+async function editProduct(id) {
+  const item = invCache[id];
+  if (!item) return;
+  const newName = prompt('Nombre del producto:', item.name);
+  if (newName === null) return;
+  const newMin = prompt('Cantidad mínima:', item.min_quantity);
+  if (newMin === null) return;
+  const newUnit = prompt('Unidad (ud/kg/L/paq...):', item.unit);
+  if (newUnit === null) return;
+  await sb.from('ops_inventory').update({ name: newName, min_quantity: parseFloat(newMin)||0, unit: newUnit, updated_by: currentUser.name }).eq('id', id);
+  renderInventory();
 }
 
 async function updateQty(id, delta) {

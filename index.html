@@ -183,6 +183,27 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
+<!-- LOCAL SELECTION SCREEN -->
+<div class="screen" id="screen-local">
+  <div class="login-wrap">
+    <div><div class="logo">UTÓPICO COFFEE</div><div class="logo-sub">Utopia is a state of mind</div></div>
+    <div style="font-size:14px;color:var(--text2);text-align:center" id="local-select-name"></div>
+    <div style="font-size:13px;color:var(--text2);text-align:center">¿En qué local trabajas hoy?</div>
+    <div style="display:flex;gap:12px;width:100%;max-width:360px">
+      <div class="pin-card" style="cursor:pointer;flex:1" onclick="selectLocal('juan_bravo')">
+        <div style="font-size:22px;margin-bottom:8px">☕</div>
+        <div style="font-size:14px;font-weight:500">Juan Bravo</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">Juan Bravo 27</div>
+      </div>
+      <div class="pin-card" style="cursor:pointer;flex:1" onclick="selectLocal('matbakh')">
+        <div style="font-size:22px;margin-bottom:8px">🍽</div>
+        <div style="font-size:14px;font-weight:500">Matbakh</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">Don Ramón 48</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- APP SHELL -->
 <div class="screen" id="screen-app">
   <div class="topbar">
@@ -229,12 +250,25 @@ async function tryLogin() {
   pinInput = '';
   renderPinDisplay();
   document.getElementById('pin-error').textContent = '';
+  if (currentUser.local === 'all' && currentUser.role !== 'owner') {
+    document.getElementById('screen-login').classList.remove('active');
+    document.getElementById('local-select-name').textContent = `Hola ${currentUser.name}`;
+    document.getElementById('screen-local').classList.add('active');
+  } else {
+    showApp();
+  }
+}
+
+function selectLocal(local) {
+  currentUser.local = local;
+  document.getElementById('screen-local').classList.remove('active');
   showApp();
 }
 function logout() {
   currentUser = null;
   invCache = {};
   document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-local').classList.remove('active');
   document.getElementById('screen-login').classList.add('active');
 }
 

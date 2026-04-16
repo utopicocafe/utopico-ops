@@ -17,8 +17,6 @@
 :root{--bg:#1C1B1B;--bg2:#252424;--bg3:#2e2d2d;--border:#3a3939;--text:#ffffff;--text2:#aaaaaa;--text3:#555;--green:#7ec850;--amber:#f0a030;--red:#e24b4a;--radius:10px;--font:'Helvetica Neue',Arial,sans-serif}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
 .app{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
-
-/* LOGIN */
 .screen{display:none}.screen.active{display:block}
 .login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:90vh;gap:2rem}
 .logo{font-size:22px;font-weight:500;letter-spacing:2px}
@@ -31,10 +29,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .pin-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:14px;font-size:18px;font-weight:500;cursor:pointer;color:var(--text);font-family:var(--font)}
 .pin-btn:hover{background:#3a3939}
 .pin-btn:active{transform:scale(.96)}
-.pin-btn.wide{grid-column:span 2}
 .pin-error{font-size:13px;color:var(--red);margin-top:1rem;min-height:18px}
-
-/* SHELL */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 1.5rem;border-bottom:0.5px solid var(--border);margin-bottom:1.5rem}
 .topbar-brand{font-size:16px;font-weight:500;letter-spacing:1px}
 .topbar-role{font-size:12px;color:var(--text2)}
@@ -46,25 +41,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .nav-btn.active{background:#fff;color:#1C1B1B}
 .section{display:none}.section.active{display:block}
 .section-title{font-size:18px;font-weight:500;margin-bottom:1.25rem}
-
-/* CARDS */
 .card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
 .card-title{font-size:14px;font-weight:500;margin-bottom:1rem}
-
-/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.5rem}
 .stat{background:var(--bg3);border-radius:8px;padding:1rem}
 .stat-label{font-size:12px;color:var(--text2);margin-bottom:4px}
 .stat-val{font-size:22px;font-weight:500}
-.stat-delta{font-size:11px;color:var(--text2);margin-top:2px}
-
-/* TABS */
 .tabs{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
 .tab-btn{font-size:13px;padding:5px 14px;border-radius:20px;border:0.5px solid var(--border);cursor:pointer;background:none;font-family:var(--font);color:var(--text2)}
 .tab-btn.active{background:#fff;color:#1C1B1B;border-color:#fff}
 .tab-panel{display:none}.tab-panel.active{display:block}
-
-/* CHECKLIST */
 .check-progress{font-size:12px;color:var(--text2);margin-bottom:1rem}
 .check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);cursor:pointer}
 .check-item:last-child{border-bottom:none}
@@ -72,8 +58,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .check-box.done{background:#fff;border-color:#fff;display:flex;align-items:center;justify-content:center}
 .check-box.done::after{content:'';display:block;width:5px;height:9px;border:2px solid #1C1B1B;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
 .check-text{font-size:14px}.check-text.done{color:var(--text3);text-decoration:line-through}
-
-/* INVENTORY */
 .inv-cat{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin:1.25rem 0 .75rem;padding-bottom:4px;border-bottom:0.5px solid var(--border)}
 .inv-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--border)}
 .inv-row:last-child{border-bottom:none}
@@ -85,14 +69,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .inv-qty-btn{width:26px;height:26px;border-radius:50%;border:0.5px solid var(--border);background:none;cursor:pointer;font-size:16px;color:var(--text);font-family:var(--font);display:flex;align-items:center;justify-content:center}
 .inv-qty-btn:hover{background:var(--bg3)}
 .inv-qty-val{font-size:14px;font-weight:500;min-width:28px;text-align:center}
-
-/* ALERT BANNER */
-.alert-banner{border-radius:8px;padding:.75rem 1rem;font-size:13px;margin-bottom:1rem;display:none}
+.alert-banner{border-radius:8px;padding:.625rem .875rem;font-size:12px;border:0.5px solid;margin-top:.875rem;display:none}
 .alert-banner.show{display:block}
-.alert-amber{background:#3a2800;border:0.5px solid #7a5200;color:#f0a030}
-.alert-green{background:#1a3300;border:0.5px solid #4a8020;color:#7ec850}
-
-/* FORMS */
+.alert-banner.alert-green{background:#1a3300;border-color:#7ec850;color:#7ec850}
+.alert-banner.alert-amber{background:#3a2800;border-color:#f0a030;color:#f0a030}
+.alert-banner.alert-red{background:#3a0000;border-color:var(--red);color:var(--red)}
 .form-row{margin-bottom:1rem}
 .form-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block;font-weight:500}
 .form-input{width:100%;padding:8px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--bg3);color:var(--text)}
@@ -102,12 +83,8 @@ select.form-input{cursor:pointer}
 .btn-primary{background:#fff;color:#1C1B1B;border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-family:var(--font);cursor:pointer;font-weight:500}
 .btn-primary:hover{opacity:.85}
 .btn-primary:disabled{opacity:.4;cursor:not-allowed}
-
-/* STARS */
 .stars{display:flex;gap:4px}
 .star{font-size:22px;cursor:pointer;color:var(--text3)}.star.on{color:#fff}
-
-/* PROTOCOLS */
 .proto-item{background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
 .proto-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer}
 .proto-name{font-size:14px;font-weight:500}
@@ -119,21 +96,15 @@ select.form-input{cursor:pointer}
 .proto-step{display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
 .proto-step:last-child{border-bottom:none}
 .proto-num{min-width:20px;height:20px;border-radius:50%;background:#fff;color:#1C1B1B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
-
-/* SCHEDULE */
 .sched-table{width:100%;border-collapse:collapse;font-size:13px}
 .sched-table th{padding:8px 6px;text-align:left;font-weight:500;font-size:11px;color:var(--text2);border-bottom:0.5px solid var(--border)}
 .sched-table td{padding:8px 6px;border-bottom:0.5px solid var(--border)}
 .shift-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;background:var(--bg3);color:var(--text)}
 .shift-off{color:var(--text3)}
-
-/* NOTICES */
 .notice{background:var(--bg2);border-left:3px solid #fff;border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin-bottom:.75rem}
 .notice-from{font-size:11px;color:var(--text2);margin-bottom:4px}
 .notice-text{font-size:14px;line-height:1.6}
 .notice-date{font-size:11px;color:var(--text3);margin-top:4px}
-
-/* VACATIONS */
 .vac-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap}
 .vac-row:last-child{border-bottom:none}
 .vac-name{font-weight:500;font-size:14px;min-width:100px}
@@ -146,29 +117,18 @@ select.form-input{cursor:pointer}
 .btn-vac{padding:3px 10px;border-radius:6px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;background:none;font-family:var(--font);color:var(--text)}
 .btn-vac.approve{border-color:#7ec850;color:#7ec850}
 .btn-vac.deny{border-color:#e24b4a;color:#e24b4a}
-
-/* ALERT ROWS */
 .alert-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
 .alert-row:last-child{border-bottom:none}
 .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.alert-banner{border-radius:8px;padding:.625rem .875rem;font-size:12px;border:0.5px solid;margin-top:.875rem;display:none}
-.alert-banner.show{display:block}
-.alert-banner.alert-green{background:#1a3300;border-color:#7ec850;color:#7ec850}
-.alert-banner.alert-amber{background:#3a2800;border-color:#f0a030;color:#f0a030}
-.alert-banner.alert-red{background:#3a0000;border-color:var(--red);color:var(--red)}
-
-/* LOADING */
 .loading{text-align:center;padding:2rem;color:var(--text2);font-size:14px}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-
 @media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr}.sched-table{font-size:11px}.sched-table td,.sched-table th{padding:6px 4px}}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- USER SELECTION SCREEN -->
 <div class="screen active" id="screen-users">
   <div class="login-wrap">
     <div><div class="logo" style="text-align:center">UTOPICO</div><div class="logo-sub" style="text-align:center">UTOPIA IS A STATE OF MIND</div></div>
@@ -179,7 +139,6 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
-<!-- LOGIN SCREEN -->
 <div class="screen" id="screen-login">
   <div class="login-wrap">
     <div><div class="logo" style="text-align:center">UTOPICO</div><div class="logo-sub" style="text-align:center">UTOPIA IS A STATE OF MIND</div></div>
@@ -207,7 +166,6 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
-<!-- LOCAL SELECTION SCREEN -->
 <div class="screen" id="screen-local">
   <div class="login-wrap">
     <div><div class="logo" style="text-align:center">UTOPICO</div><div class="logo-sub" style="text-align:center">UTOPIA IS A STATE OF MIND</div></div>
@@ -228,7 +186,6 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
-<!-- APP SHELL -->
 <div class="screen" id="screen-app">
   <div class="topbar">
     <div><div class="topbar-brand">UTOPICO</div><div class="topbar-role" id="app-role-label"></div></div>
@@ -244,13 +201,13 @@ select.form-input{cursor:pointer}
 const SUPABASE_URL = 'https://ombypthpxggwqxqptkng.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_8CGNBEnrFLv041HyhSuqWw_Q2BX5r-v';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const API = 'https://energetic-motivation-production.up.railway.app';
 
 let currentUser = null;
 let pinInput = '';
 let invCache = {};
 let selectedUser = null;
 
-// ── LOAD USERS ────────────────────────────────────────────────
 async function loadUsers() {
   const { data: users } = await sb.from('ops_users').select('*').eq('active', true).order('name');
   const grid = document.getElementById('user-grid');
@@ -284,7 +241,6 @@ function backToUsers() {
   renderPinDisplay();
 }
 
-// ── PIN ──────────────────────────────────────────────────────
 function pinPress(d) {
   if (pinInput.length >= 4) return;
   pinInput += d;
@@ -337,7 +293,6 @@ function logout() {
 
 loadUsers();
 
-// ── APP SHELL ─────────────────────────────────────────────────
 function showApp() {
   document.getElementById('screen-login').classList.remove('active');
   document.getElementById('screen-app').classList.add('active');
@@ -351,11 +306,9 @@ function buildNav() {
   const nav = document.getElementById('app-nav');
   const role = currentUser.role;
   let tabs = [];
- if (role === 'owner') tabs = ['Resumen','Reservas','Inventario','Horarios','Vacaciones','Avisos','Protocolos','Recetas'];
-else if (role === 'manager') tabs = ['Checklist','Reservas','Inventario','Parte diario','Café','Horarios','Protocolos','Avisos','Recetas'];
-else tabs = ['Mi turno','Protocolos','Avisos','Vacaciones','Recetas'];,'Inventario','Horarios','Vacaciones','Avisos','Protocolos'];
-  else if (role === 'manager') tabs = ['Checklist','Inventario','Parte diario','Café','Horarios','Protocolos','Avisos'];
-  else tabs = ['Mi turno','Protocolos','Avisos','Vacaciones'];
+  if (role === 'owner') tabs = ['Resumen','Reservas','Inventario','Horarios','Vacaciones','Avisos','Protocolos','Recetas'];
+  else if (role === 'manager') tabs = ['Checklist','Reservas','Inventario','Parte diario','Café','Horarios','Protocolos','Avisos','Recetas'];
+  else tabs = ['Mi turno','Protocolos','Avisos','Vacaciones','Recetas'];
   nav.innerHTML = tabs.map((t,i) =>
     `<button class="nav-btn${i===0?' active':''}" onclick="showSection('${t}',this)">${t}</button>`
   ).join('');
@@ -371,7 +324,6 @@ function showSection(name, btn) {
 function showSectionByName(name) {
   const container = document.getElementById('app-sections');
   container.innerHTML = `<div class="loading"><span class="spinner"></span>Cargando...</div>`;
-  const role = currentUser.role;
   if (name === 'Resumen') renderOwnerOverview();
   else if (name === 'Inventario') renderInventory();
   else if (name === 'Checklist') renderChecklist();
@@ -380,18 +332,17 @@ function showSectionByName(name) {
   else if (name === 'Protocolos') renderProtocols();
   else if (name === 'Avisos') renderNotices();
   else if (name === 'Horarios') renderSchedule();
-  else if (name === 'Vacaciones' || name === 'Mi turno' && false) renderVacations();
-  else if (name === 'Mi turno') renderMySchedule();else if (name === 'Reservas') renderReservations();
-else if (name === 'Recetas') renderRecipes();
+  else if (name === 'Vacaciones') renderVacations();
+  else if (name === 'Mi turno') renderMySchedule();
+  else if (name === 'Reservas') renderReservations();
+  else if (name === 'Recetas') renderRecipes();
 }
 
-// ── OWNER OVERVIEW ────────────────────────────────────────────
 async function renderOwnerOverview() {
   const c = document.getElementById('app-sections');
   const today = new Date().toISOString().split('T')[0];
-  const [repRes, invRes] = await Promise.all([
-    sb.from('ops_daily_reports').select('*').eq('report_date', today).order('created_at', { ascending: false }),
-    sb.from('ops_inventory').select('*').lt('quantity', sb.raw ? undefined : 0)
+  const [repRes] = await Promise.all([
+    sb.from('ops_daily_reports').select('*').eq('report_date', today).order('created_at', { ascending: false })
   ]);
   const reports = repRes.data || [];
   const jbRep = reports.find(r => r.local === 'juan_bravo');
@@ -426,29 +377,23 @@ function ownerLocalCard(rep, local, lowItems) {
       <div class="stat"><div class="stat-label">Encargado</div><div class="stat-val" style="font-size:15px">${rep.submitted_by}</div></div>
       <div class="stat"><div class="stat-label">Stock bajo</div><div class="stat-val" style="color:${localLow.length?'var(--amber)':'var(--green)'}">${localLow.length}</div></div>
     </div>
-    ${rep.manager_note ? `<div class="card"><div class="card-title">Nota del encargado</div><div style="font-size:14px;line-height:1.6">${rep.manager_note}</div><div style="font-size:11px;color:var(--text3);margin-top:8px">${rep.submitted_by} · Hoy</div></div>` : ''}
+    ${rep.manager_note ? `<div class="card"><div class="card-title">Nota del encargado</div><div style="font-size:14px;line-height:1.6">${rep.manager_note}</div></div>` : ''}
     ${rep.incidents ? `<div class="card"><div class="card-title">Incidencias</div><div style="font-size:14px;line-height:1.6;color:var(--amber)">${rep.incidents}</div></div>` : ''}
     ${localLow.length ? `<div class="card"><div class="card-title">Stock bajo</div>${localLow.map(i=>`<div class="alert-row"><div class="alert-dot" style="background:var(--amber)"></div><span>${i.name} — ${i.quantity} ${i.unit} (mín. ${i.min_quantity})</span></div>`).join('')}</div>` : ''}
   `;
 }
 
-// ── INVENTORY ─────────────────────────────────────────────────
 async function renderInventory() {
   const c = document.getElementById('app-sections');
   const isOwner = currentUser.role === 'owner';
   const isManager = currentUser.role === 'manager';
   const editable = isManager;
-  let locals = isOwner ? ['juan_bravo','matbakh'] : [currentUser.local];
-
   const { data: items } = await sb.from('ops_inventory').select('*').order('category').order('name');
   invCache = {};
   (items||[]).forEach(i => { invCache[i.id] = i; });
-
   const lowCount = (items||[]).filter(i => i.quantity < i.min_quantity).length;
-
   let html = `<div class="section-title">Inventario en vivo</div>`;
   if (lowCount) html += `<div class="alert-banner alert-amber show">${lowCount} producto${lowCount>1?'s':''} bajo mínimo</div>`;
-
   if (isOwner) {
     html += `<div class="tabs"><button class="tab-btn active" onclick="switchTab('inv','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('inv','mb',this)">Matbakh</button></div>
     <div class="tab-panel active" id="inv-jb">${buildInvTable(items,'juan_bravo',false)}${addProductForm('juan_bravo')}</div>
@@ -550,13 +495,10 @@ async function updateQty(id, delta) {
   const el = document.getElementById(`qty-${id}`);
   if (el) el.textContent = newQty;
   const dot = el?.closest('.inv-row')?.querySelector('.inv-dot');
-  if (dot) {
-    dot.className = 'inv-dot ' + (newQty <= 0 ? 'out' : newQty < item.min_quantity ? 'low' : 'ok');
-  }
+  if (dot) dot.className = 'inv-dot ' + (newQty <= 0 ? 'out' : newQty < item.min_quantity ? 'low' : 'ok');
   await sb.from('ops_inventory').update({ quantity: newQty, updated_at: new Date().toISOString(), updated_by: currentUser.name }).eq('id', id);
 }
 
-// ── CHECKLIST ─────────────────────────────────────────────────
 async function renderChecklist() {
   const c = document.getElementById('app-sections');
   const today = new Date().toISOString().split('T')[0];
@@ -564,10 +506,8 @@ async function renderChecklist() {
   const { data: existing } = await sb.from('ops_checklists').select('*').eq('local', local).eq('check_date', today);
   const openRec = existing?.find(r => r.type === 'opening');
   const closeRec = existing?.find(r => r.type === 'closing');
-
   const openSteps = local === 'juan_bravo' ? STEPS_OPEN_JB : STEPS_OPEN_MB;
   const closeSteps = local === 'juan_bravo' ? STEPS_CLOSE_JB : STEPS_CLOSE_MB;
-
   c.innerHTML = `
     <div class="section-title">Checklist del día</div>
     <div class="card"><div class="card-title">Apertura · ${localLabel(local)}</div><div id="cl-open">${buildChecklistHTML(openSteps, openRec?.completed_steps||[], 'open')}</div></div>
@@ -584,8 +524,6 @@ function buildChecklistHTML(steps, completed, type) {
     }).join('');
 }
 
-const clState = { open: [], close: [] };
-
 async function toggleChecklistItem(idx, type) {
   const today = new Date().toISOString().split('T')[0];
   const local = currentUser.local;
@@ -595,7 +533,6 @@ async function toggleChecklistItem(idx, type) {
   let completed = rec?.completed_steps || [];
   if (completed.includes(idx)) completed = completed.filter(i => i !== idx);
   else completed = [...completed, idx];
-
   const box = document.getElementById(`cb-${type}-${idx}`);
   const txt = document.getElementById(`ct-${type}-${idx}`);
   const isDone = completed.includes(idx);
@@ -603,13 +540,11 @@ async function toggleChecklistItem(idx, type) {
   txt?.classList.toggle('done', isDone);
   const prog = document.getElementById(`cl-prog-${type}`);
   if (prog) prog.textContent = `${completed.length}/${steps.length} completados`;
-
   const payload = { local, type: type === 'open' ? 'opening' : 'closing', submitted_by: currentUser.name, check_date: today, completed_steps: completed, total_steps: steps.length };
   if (rec) await sb.from('ops_checklists').update(payload).eq('id', rec.id);
   else await sb.from('ops_checklists').insert(payload);
 }
 
-// ── DAILY REPORT ──────────────────────────────────────────────
 function renderDailyReport() {
   const c = document.getElementById('app-sections');
   c.innerHTML = `
@@ -630,11 +565,9 @@ function renderDailyReport() {
 
 async function submitDailyReport() {
   const btn = document.getElementById('dr-submit');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
+  btn.disabled = true; btn.textContent = 'Enviando...';
   const payload = {
-    local: currentUser.local,
-    submitted_by: currentUser.name,
+    local: currentUser.local, submitted_by: currentUser.name,
     report_date: new Date().toISOString().split('T')[0],
     square_sales: parseFloat(document.getElementById('dr-sales').value) || 0,
     cash_matches: document.getElementById('dr-match').value === '1',
@@ -645,14 +578,12 @@ async function submitDailyReport() {
     manager_note: document.getElementById('dr-note').value,
   };
   await sb.from('ops_daily_reports').insert(payload);
-  btn.textContent = 'Enviar parte';
-  btn.disabled = false;
+  btn.textContent = 'Enviar parte'; btn.disabled = false;
   const s = document.getElementById('dr-success');
   s.classList.add('show');
   setTimeout(() => s.classList.remove('show'), 3000);
 }
 
-// ── COFFEE QUALITY ────────────────────────────────────────────
 let coffeeStars = 0;
 function renderCoffeeQuality() {
   const c = document.getElementById('app-sections');
@@ -684,8 +615,7 @@ async function submitCoffeeQuality() {
   const btn = document.getElementById('cq-submit');
   btn.disabled = true;
   await sb.from('ops_coffee_quality').insert({
-    local: currentUser.local,
-    submitted_by: currentUser.name,
+    local: currentUser.local, submitted_by: currentUser.name,
     log_date: new Date().toISOString().split('T')[0],
     dose_g: parseFloat(document.getElementById('cq-dose').value) || null,
     extraction_time_s: parseFloat(document.getElementById('cq-time').value) || null,
@@ -700,14 +630,12 @@ async function submitCoffeeQuality() {
   setTimeout(() => s.classList.remove('show'), 3000);
 }
 
-// ── NOTICES ───────────────────────────────────────────────────
 async function renderNotices() {
   const c = document.getElementById('app-sections');
   const local = currentUser.local;
   const { data: notices } = await sb.from('ops_notices').select('*').eq('active', true).order('created_at', { ascending: false });
   const filtered = (notices||[]).filter(n => n.target === 'all' || n.target === local);
   const isOwner = currentUser.role === 'owner';
-
   let html = `<div class="section-title">Avisos</div>`;
   if (isOwner) {
     html += `<div class="card"><div class="card-title">Publicar aviso</div>
@@ -734,8 +662,6 @@ async function postNotice() {
   renderNotices();
 }
 
-
-// ── SCHEDULE ──────────────────────────────────────────────────
 async function renderSchedule() {
   const c = document.getElementById('app-sections');
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -744,7 +670,6 @@ async function renderSchedule() {
   const isManager = currentUser.role === 'manager';
   const canEdit = isOwner || isManager;
   const local = currentUser.local;
-
   const { data: schedules } = await sb.from('ops_schedules').select('*').order('week_start', { ascending: false }).limit(30);
   const { data: vacs } = await sb.from('ops_vacations').select('*').eq('status','approved').order('start_date');
 
@@ -789,53 +714,32 @@ async function renderSchedule() {
   }
 
   let html = `<div class="section-title">Horarios</div>`;
-
   if (isOwner) {
     html += `<div class="tabs"><button class="tab-btn active" onclick="switchTab('sch','jb',this)">Juan Bravo</button><button class="tab-btn" onclick="switchTab('sch','mb',this)">Matbakh</button></div>
-    <div class="tab-panel active" id="sch-jb">
-      <div class="card">${schedTable('juan_bravo')}</div>
-      ${addForm('juan_bravo')}
-      <div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('juan_bravo')}</div>
-    </div>
-    <div class="tab-panel" id="sch-mb">
-      <div class="card">${schedTable('matbakh')}</div>
-      ${addForm('matbakh')}
-      <div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('matbakh')}</div>
-    </div>`;
+    <div class="tab-panel active" id="sch-jb"><div class="card">${schedTable('juan_bravo')}</div>${addForm('juan_bravo')}<div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('juan_bravo')}</div></div>
+    <div class="tab-panel" id="sch-mb"><div class="card">${schedTable('matbakh')}</div>${addForm('matbakh')}<div class="card"><div class="card-title">Vacaciones aprobadas</div>${vacsForLocal('matbakh')}</div></div>`;
   } else if (isManager) {
-    html += `<div class="card">${schedTable(local)}</div>`;
-    html += addForm(local);
-    html += `<div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsForLocal(local)}</div>`;
+    html += `<div class="card">${schedTable(local)}</div>${addForm(local)}<div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsForLocal(local)}</div>`;
   } else {
-    html += `<div class="card">${schedTable(local)}</div>`;
-    html += `<div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsForLocal(local)}</div>`;
-    html += `<div class="card"><div class="card-title">Sugerir cambio de turno</div>
-      <div class="form-row"><label class="form-label">¿Qué cambio propones?</label>
-        <textarea class="form-input" id="sug-text" placeholder="Ej: el jueves 15 necesito cambiar mi turno..."></textarea>
-      </div>
+    html += `<div class="card">${schedTable(local)}</div>
+    <div class="card"><div class="card-title">Vacaciones del equipo</div>${vacsForLocal(local)}</div>
+    <div class="card"><div class="card-title">Sugerir cambio de turno</div>
+      <div class="form-row"><label class="form-label">¿Qué cambio propones?</label><textarea class="form-input" id="sug-text" placeholder="Ej: el jueves 15 necesito cambiar mi turno..."></textarea></div>
       <button class="btn-primary" onclick="sendSuggestion()">Enviar sugerencia</button>
       <div class="alert-banner alert-green" id="sug-ok">Sugerencia enviada.</div>
     </div>`;
   }
-
   c.innerHTML = html;
 }
 
 async function saveShift(loc) {
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const editId = document.getElementById(`sch-edit-id-${loc}`).value;
-  const payload = {
-    local: loc,
-    employee_name: document.getElementById(`sch-name-${loc}`).value,
-    week_start: document.getElementById(`sch-week-${loc}`).value,
-  };
+  const payload = { local: loc, employee_name: document.getElementById(`sch-name-${loc}`).value, week_start: document.getElementById(`sch-week-${loc}`).value };
   days.forEach(d => { payload[d] = document.getElementById(`sch-${d}-${loc}`).value || null; });
   if (!payload.employee_name || !payload.week_start) return;
-  if (editId) {
-    await sb.from('ops_schedules').update(payload).eq('id', editId);
-  } else {
-    await sb.from('ops_schedules').insert(payload);
-  }
+  if (editId) await sb.from('ops_schedules').update(payload).eq('id', editId);
+  else await sb.from('ops_schedules').insert(payload);
   const ok = document.getElementById(`sch-ok-${loc}`);
   ok.classList.add('show');
   setTimeout(() => { ok.classList.remove('show'); renderSchedule(); }, 1500);
@@ -849,7 +753,6 @@ async function deleteShift(id) {
 
 function editShift(id, name, loc) {
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-  const { data } = sb.from('ops_schedules').select('*').eq('id', id);
   document.getElementById(`sch-edit-id-${loc}`).value = id;
   document.getElementById(`sch-name-${loc}`).value = name;
   sb.from('ops_schedules').select('*').eq('id', id).single().then(({data: r}) => {
@@ -877,14 +780,12 @@ async function sendSuggestion() {
   setTimeout(() => document.getElementById('sug-ok').classList.remove('show'), 2500);
 }
 
-// ── VACATIONS ─────────────────────────────────────────────────
 async function renderVacations() {
   const c = document.getElementById('app-sections');
   const isOwner = currentUser.role === 'owner';
   const { data: vacs } = await sb.from('ops_vacations').select('*').order('created_at', { ascending: false });
   const pending = (vacs||[]).filter(v => v.status === 'pending');
   const approved = (vacs||[]).filter(v => v.status === 'approved');
-
   let html = `<div class="section-title">Vacaciones y ausencias</div>`;
   if (isOwner && pending.length) {
     html += `<div class="card"><div class="card-title">Solicitudes pendientes</div>
@@ -913,8 +814,7 @@ async function renderVacations() {
 
 async function submitVacation() {
   await sb.from('ops_vacations').insert({
-    employee_name: currentUser.name,
-    local: currentUser.local,
+    employee_name: currentUser.name, local: currentUser.local,
     start_date: document.getElementById('vac-start').value,
     end_date: document.getElementById('vac-end').value,
     note: document.getElementById('vac-note').value,
@@ -928,7 +828,6 @@ async function reviewVac(id, status) {
   renderVacations();
 }
 
-// ── MY SCHEDULE (barista) ─────────────────────────────────────
 async function renderMySchedule() {
   const c = document.getElementById('app-sections');
   const { data: rows } = await sb.from('ops_schedules').select('*').eq('local', currentUser.local).eq('employee_name', currentUser.name).order('week_start', { ascending: false }).limit(1);
@@ -954,7 +853,6 @@ async function renderMySchedule() {
   </div>`;
 }
 
-// ── PROTOCOLS ─────────────────────────────────────────────────
 function renderProtocols() {
   const c = document.getElementById('app-sections');
   const local = currentUser.local || 'juan_bravo';
@@ -971,12 +869,12 @@ function renderProtocols() {
       </div>
     </div>`).join('')}`;
 }
+
 function toggleProto(i) {
   document.getElementById(`pb-${i}`).classList.toggle('open');
   document.getElementById(`pa-${i}`).classList.toggle('open');
 }
 
-// ── TABS ──────────────────────────────────────────────────────
 function switchTab(group, id, btn) {
   btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -984,38 +882,13 @@ function switchTab(group, id, btn) {
   document.getElementById(`${group}-${id}`)?.classList.add('active');
 }
 
-// ── STATIC DATA ───────────────────────────────────────────────
-const STEPS_OPEN_JB = ["Revisar que el cierre dejó el local en condiciones","Calibrar el espresso — extraer y ajustar","Preparar o verificar Batch Brew","Verificar Square e iniciar caja con el fondo","Revisar baños — papel, jabón, limpieza","Pasar trapos con Sanytol por barra y superficies","Encender incienso","Sacar banco y cartel","Encender música","Abrir la puerta al público a las 08:00"];
-const STEPS_CLOSE_JB = ["Primer ciego con el portafiltro a las 18:30","Limpiar todas las mesas con Sanytol","Lavar todos los vasos en el lavavajillas","Limpiar el rinser de lava jarras","Dejar los baños limpios","Segundo ciego a las 18:55","Sacar basura y posos de café","Meter banco y cartel dentro","Cerrar sesión de Square","Contar caja y guardar efectivo en sobre"];
-const STEPS_OPEN_MB = ["Revisar que el cierre dejó el local en condiciones","Calibrar el espresso","Preparar o verificar Batch Brew","Verificar Square e iniciar caja","Encender luces de la sala de abajo","Revisar baños","Comprobar cubiertos limpios y en su sitio","Comprobar vasos limpios y en su sitio","Pasar trapos con Sanytol","Encender incienso","Sacar banco y cartel","Encender música","Abrir la puerta al público a las 08:00"];
-const STEPS_CLOSE_MB = ["Primer ciego con el portafiltro a las 18:30","Limpiar todas las mesas con Sanytol","Lavar vasos y cubiertos en el lavavajillas","Limpiar el rinser de lava jarras","Apagar luces de la sala de abajo","Dejar los baños limpios","Segundo ciego a las 18:55","Sacar basura y posos de café","Meter banco y cartel dentro","Cerrar sesión de Square","Contar caja y guardar efectivo en sobre"];
-const PROTOS_JB = [
-  {title:"Apertura",tag:"Diario",steps:STEPS_OPEN_JB},
-  {title:"Cierre",tag:"Diario",steps:STEPS_CLOSE_JB},
-  {title:"Calibración del espresso",tag:"Diario",steps:["Encender la máquina y esperar temperatura estable","Preparar dosis base (18g)","Extraer y medir tiempo (objetivo 25-30s)","Ajustar molino si es necesario (más fino = más tiempo)","Probar en taza y anotar en app","Repetir hasta conseguir ratio correcto"]},
-  {title:"Limpieza de máquina",tag:"Diario",steps:["Primer ciego a las 18:30 con portafiltro ciego","Pastilla de limpieza una vez por semana","Limpiar vaporizador después de cada uso","Segundo ciego al cierre","Limpiar bandeja y exterior con bayeta"]},
-  {title:"Gestión de incidencias",tag:"Protocolo",steps:["Identificar el problema y categoría","Si es resoluble en 5 min, resolverlo directamente","Si no, llamar al contacto correspondiente","Anotar en el parte diario con hora y solución","Si supera tu autoridad, avisar a Diyar ese mismo día"]},
-  {title:"Pedidos a proveedores",tag:"Semanal",steps:["Revisar stock en la app cada lunes","Leche oat a Disbesa: pedir lunes o martes","Vasos a Envapro: cuando baje del mínimo","Usar el correo habilitado para proveedores","Café verde: avisar a Diyar, no pedir directamente"]}
-];
-const PROTOS_MB = [
-  {title:"Apertura — Matbakh",tag:"Diario",steps:STEPS_OPEN_MB},
-  {title:"Cierre — Matbakh",tag:"Diario",steps:STEPS_CLOSE_MB},
-  {title:"Luces de la sala",tag:"Apertura",steps:["Encender luces de planta entrada","Encender luces sala de abajo (panel izquierdo)","Encender luces de ambiente / barra","Al cierre: apagar en orden inverso"]},
-  {title:"Calibración del espresso",tag:"Diario",steps:["Encender la máquina y esperar temperatura estable","Preparar dosis base (18g)","Extraer y medir tiempo (objetivo 25-30s)","Ajustar molino si es necesario","Probar en taza y anotar en app"]},
-  {title:"Gestión de incidencias",tag:"Protocolo",steps:["Identificar el problema","Si es resoluble en 5 min, resolverlo directamente","Si no, llamar al contacto correspondiente","Anotar en el parte diario","Si supera tu autoridad, avisar a Diyar"]},
-  {title:"Pedidos a Makro",tag:"Semanal",steps:["Revisar stock cada inicio de semana","Hacer lista consolidada antes de ir","Priorizar productos bajo mínimo (marcados en rojo en la app)","Guardar ticket para registro de gastos","Actualizar cantidades en la app al volver"]}
-];
-
-// ── RESERVATIONS (Matbakh) ─────────────────────────────────
+// ── RESERVATIONS ──────────────────────────────────────────────
 async function renderReservations() {
   const c = document.getElementById('app-sections');
   const today = new Date().toISOString().split('T')[0];
-  const isOwner = currentUser.role === 'owner';
-  const isManager = currentUser.role === 'manager';
-
   c.innerHTML = `
     <div class="section-title">Reservas · Matbakh</div>
-    <div class="filters" style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
+    <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
       <input type="date" class="form-input" id="res-date" value="${today}" style="width:160px">
       <select class="form-input" id="res-status" style="width:140px">
         <option value="">Todas</option>
@@ -1025,35 +898,27 @@ async function renderReservations() {
       </select>
       <button class="btn-primary" style="padding:8px 18px;font-size:13px" onclick="loadReservations()">Ver</button>
     </div>
-    <div id="res-stats" style="display:none" class="stats-grid" style="margin-bottom:1rem"></div>
+    <div id="res-stats" class="stats-grid" style="display:none"></div>
     <div id="res-list"><div class="loading"><span class="spinner"></span>Cargando...</div></div>
   `;
-
   loadReservations();
 }
 
 async function loadReservations() {
   const date = document.getElementById('res-date')?.value;
   const status = document.getElementById('res-status')?.value;
-  const API = 'https://energetic-motivation-production.up.railway.app';
-
   try {
     const params = new URLSearchParams();
     if (date) params.set('date', date);
     if (status) params.set('status', status);
-    params.set('service', 'dinner');
-
     const res = await fetch(`${API}/reservations?${params}`);
     const data = await res.json();
     const reservations = data.reservations || [];
-
-    // Stats
     const statsEl = document.getElementById('res-stats');
     const total = reservations.length;
     const covers = reservations.filter(r => r.status !== 'cancelled').reduce((s, r) => s + r.party_size, 0);
     const pending = reservations.filter(r => r.status === 'pending').length;
     const confirmed = reservations.filter(r => r.status === 'confirmed').length;
-
     statsEl.style.display = 'grid';
     statsEl.innerHTML = `
       <div class="stat"><div class="stat-label">Total</div><div class="stat-val">${total}</div></div>
@@ -1061,17 +926,12 @@ async function loadReservations() {
       <div class="stat"><div class="stat-label">Pendientes</div><div class="stat-val" style="color:var(--amber)">${pending}</div></div>
       <div class="stat"><div class="stat-label">Confirmadas</div><div class="stat-val" style="color:var(--green)">${confirmed}</div></div>
     `;
-
     const list = document.getElementById('res-list');
-    const isOwner = currentUser.role === 'owner';
-    const isManager = currentUser.role === 'manager';
-    const canEdit = isOwner || isManager;
-
+    const canEdit = currentUser.role === 'owner' || currentUser.role === 'manager';
     if (!reservations.length) {
       list.innerHTML = '<div class="card" style="color:var(--text2);font-size:14px">Sin reservas para esta fecha.</div>';
       return;
     }
-
     list.innerHTML = reservations.map(r => `
       <div class="card" id="rescard-${r.id}" style="padding:1rem 1.25rem">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -1083,7 +943,7 @@ async function loadReservations() {
             ${r.status === 'pending' ? 'Pendiente' : r.status === 'confirmed' ? 'Confirmada' : 'Cancelada'}
           </span>
         </div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:${r.notes || canEdit ? '10px' : '0'}">${r.email}${r.phone ? ' · ' + r.phone : ''}</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${r.email}${r.phone ? ' · ' + r.phone : ''}</div>
         ${r.notes ? `<div style="font-size:12px;color:var(--amber);margin-bottom:10px">📝 ${r.notes}</div>` : ''}
         ${canEdit && r.status !== 'cancelled' ? `
           <div style="display:flex;gap:8px">
@@ -1092,14 +952,12 @@ async function loadReservations() {
           </div>` : ''}
       </div>
     `).join('');
-
   } catch(e) {
     document.getElementById('res-list').innerHTML = '<div class="card" style="color:var(--red);font-size:13px">Error conectando con el servidor.</div>';
   }
 }
 
 async function confirmReservation(id) {
-  const API = 'https://energetic-motivation-production.up.railway.app';
   try {
     await fetch(`${API}/reservations/${id}/confirm`, { method: 'PATCH' });
     loadReservations();
@@ -1108,7 +966,6 @@ async function confirmReservation(id) {
 
 async function cancelReservation(id) {
   if (!confirm('¿Cancelar esta reserva?')) return;
-  const API = 'https://energetic-motivation-production.up.railway.app';
   try {
     await fetch(`${API}/reservations/${id}/cancel`, { method: 'PATCH' });
     loadReservations();
@@ -1118,12 +975,8 @@ async function cancelReservation(id) {
 // ── RECIPES ───────────────────────────────────────────────────
 async function renderRecipes() {
   const c = document.getElementById('app-sections');
-  const isOwner = currentUser.role === 'owner';
-  const isManager = currentUser.role === 'manager';
-  const canEdit = isOwner || isManager;
-
+  const canEdit = currentUser.role === 'owner' || currentUser.role === 'manager';
   const { data: recipes } = await sb.from('ops_recipes').select('*').order('type').order('origin');
-
   const espresso = (recipes || []).filter(r => r.type === 'espresso');
   const v60 = (recipes || []).filter(r => r.type === 'v60');
 
@@ -1148,34 +1001,31 @@ async function renderRecipes() {
     </div>`;
   }
 
-  function addForm() {
-    if (!canEdit) return '';
-    return `<div class="card" id="recipe-form-card">
-      <div class="card-title" id="recipe-form-title">Nueva receta</div>
-      <input type="hidden" id="recipe-edit-id">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div><label class="form-label">Origen</label><input class="form-input" id="rec-origin" placeholder="Ej: Ethiopia Salomon"></div>
-        <div><label class="form-label">Tipo</label><select class="form-input" id="rec-type"><option value="espresso">Espresso</option><option value="v60">V60 Filter</option></select></div>
-        <div><label class="form-label">Dosis (g)</label><input type="number" class="form-input" id="rec-dose" placeholder="18"></div>
-        <div><label class="form-label">Ratio salida (g)</label><input type="number" class="form-input" id="rec-ratio" placeholder="36"></div>
-        <div><label class="form-label">Tiempo (s)</label><input type="number" class="form-input" id="rec-time" placeholder="27"></div>
-        <div><label class="form-label">Temperatura (°C)</label><input type="number" class="form-input" id="rec-temp" placeholder="93"></div>
-        <div><label class="form-label">Agua (g) — V60</label><input type="number" class="form-input" id="rec-water" placeholder="250"></div>
-        <div><label class="form-label">Molturación</label><input class="form-input" id="rec-grind" placeholder="Media-fina"></div>
-      </div>
-      <div class="form-row"><label class="form-label">Notas de sabor</label><textarea class="form-input" id="rec-flavor" placeholder="Ej: Notas de frutos rojos, acidez media, buen cuerpo..."></textarea></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn-primary" onclick="saveRecipe()">Guardar receta</button>
-        <button style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;color:var(--text2);cursor:pointer;font-family:var(--font)" onclick="clearRecipeForm()">Limpiar</button>
-      </div>
-      <div class="alert-banner alert-green" id="rec-ok">Receta guardada.</div>
-      <div class="alert-banner alert-red" id="rec-err">Rellena origen y tipo.</div>
-    </div>`;
-  }
+  const addForm = canEdit ? `<div class="card" id="recipe-form-card">
+    <div class="card-title" id="recipe-form-title">Nueva receta</div>
+    <input type="hidden" id="recipe-edit-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label class="form-label">Origen</label><input class="form-input" id="rec-origin" placeholder="Ej: Ethiopia Salomon"></div>
+      <div><label class="form-label">Tipo</label><select class="form-input" id="rec-type"><option value="espresso">Espresso</option><option value="v60">V60 Filter</option></select></div>
+      <div><label class="form-label">Dosis (g)</label><input type="number" class="form-input" id="rec-dose" placeholder="18"></div>
+      <div><label class="form-label">Ratio salida (g)</label><input type="number" class="form-input" id="rec-ratio" placeholder="36"></div>
+      <div><label class="form-label">Tiempo (s)</label><input type="number" class="form-input" id="rec-time" placeholder="27"></div>
+      <div><label class="form-label">Temperatura (°C)</label><input type="number" class="form-input" id="rec-temp" placeholder="93"></div>
+      <div><label class="form-label">Agua (g) — V60</label><input type="number" class="form-input" id="rec-water" placeholder="250"></div>
+      <div><label class="form-label">Molturación</label><input class="form-input" id="rec-grind" placeholder="Media-fina"></div>
+    </div>
+    <div class="form-row"><label class="form-label">Notas de sabor</label><textarea class="form-input" id="rec-flavor" placeholder="Ej: Notas de frutos rojos, acidez media, buen cuerpo..."></textarea></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary" onclick="saveRecipe()">Guardar receta</button>
+      <button style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;color:var(--text2);cursor:pointer;font-family:var(--font)" onclick="clearRecipeForm()">Limpiar</button>
+    </div>
+    <div class="alert-banner alert-green" id="rec-ok">Receta guardada.</div>
+    <div class="alert-banner alert-red" id="rec-err">Rellena el origen.</div>
+  </div>` : '';
 
   c.innerHTML = `
     <div class="section-title">Recetas de café</div>
-    ${addForm()}
+    ${addForm}
     <div class="tabs" style="margin-top:1.25rem">
       <button class="tab-btn active" onclick="switchTab('rec','esp',this)">☕ Espresso</button>
       <button class="tab-btn" onclick="switchTab('rec','v60',this)">🫗 V60 Filter</button>
@@ -1191,15 +1041,12 @@ async function renderRecipes() {
 
 async function saveRecipe() {
   const origin = document.getElementById('rec-origin').value.trim();
-  const type = document.getElementById('rec-type').value;
-  const editId = document.getElementById('recipe-edit-id').value;
   const errEl = document.getElementById('rec-err');
   const okEl = document.getElementById('rec-ok');
-
   if (!origin) { errEl.classList.add('show'); setTimeout(() => errEl.classList.remove('show'), 2500); return; }
-
+  const editId = document.getElementById('recipe-edit-id').value;
   const payload = {
-    origin, type,
+    origin, type: document.getElementById('rec-type').value,
     dose_g: parseFloat(document.getElementById('rec-dose').value) || null,
     ratio_g: parseFloat(document.getElementById('rec-ratio').value) || null,
     extraction_time_s: parseFloat(document.getElementById('rec-time').value) || null,
@@ -1209,13 +1056,8 @@ async function saveRecipe() {
     flavor_notes: document.getElementById('rec-flavor').value.trim() || null,
     updated_by: currentUser.name,
   };
-
-  if (editId) {
-    await sb.from('ops_recipes').update(payload).eq('id', editId);
-  } else {
-    await sb.from('ops_recipes').insert(payload);
-  }
-
+  if (editId) await sb.from('ops_recipes').update(payload).eq('id', editId);
+  else await sb.from('ops_recipes').insert(payload);
   okEl.classList.add('show');
   clearRecipeForm();
   setTimeout(() => { okEl.classList.remove('show'); renderRecipes(); }, 1200);
@@ -1244,7 +1086,31 @@ async function editRecipe(id) {
   document.getElementById('rec-grind').value = r.grind_size || '';
   document.getElementById('rec-flavor').value = r.flavor_notes || '';
   document.getElementById('recipe-form-card').scrollIntoView({ behavior: 'smooth' });
-}if ('serviceWorker' in navigator) {
+}
+
+// ── STATIC DATA ───────────────────────────────────────────────
+const STEPS_OPEN_JB = ["Revisar que el cierre dejó el local en condiciones","Calibrar el espresso — extraer y ajustar","Preparar o verificar Batch Brew","Verificar Square e iniciar caja con el fondo","Revisar baños — papel, jabón, limpieza","Pasar trapos con Sanytol por barra y superficies","Encender incienso","Sacar banco y cartel","Encender música","Abrir la puerta al público a las 08:00"];
+const STEPS_CLOSE_JB = ["Primer ciego con el portafiltro a las 18:30","Limpiar todas las mesas con Sanytol","Lavar todos los vasos en el lavavajillas","Limpiar el rinser de lava jarras","Dejar los baños limpios","Segundo ciego a las 18:55","Sacar basura y posos de café","Meter banco y cartel dentro","Cerrar sesión de Square","Contar caja y guardar efectivo en sobre"];
+const STEPS_OPEN_MB = ["Revisar que el cierre dejó el local en condiciones","Calibrar el espresso","Preparar o verificar Batch Brew","Verificar Square e iniciar caja","Encender luces de la sala de abajo","Revisar baños","Comprobar cubiertos limpios y en su sitio","Comprobar vasos limpios y en su sitio","Pasar trapos con Sanytol","Encender incienso","Sacar banco y cartel","Encender música","Abrir la puerta al público a las 08:00"];
+const STEPS_CLOSE_MB = ["Primer ciego con el portafiltro a las 18:30","Limpiar todas las mesas con Sanytol","Lavar vasos y cubiertos en el lavavajillas","Limpiar el rinser de lava jarras","Apagar luces de la sala de abajo","Dejar los baños limpios","Segundo ciego a las 18:55","Sacar basura y posos de café","Meter banco y cartel dentro","Cerrar sesión de Square","Contar caja y guardar efectivo en sobre"];
+const PROTOS_JB = [
+  {title:"Apertura",tag:"Diario",steps:STEPS_OPEN_JB},
+  {title:"Cierre",tag:"Diario",steps:STEPS_CLOSE_JB},
+  {title:"Calibración del espresso",tag:"Diario",steps:["Encender la máquina y esperar temperatura estable","Preparar dosis base (18g)","Extraer y medir tiempo (objetivo 25-30s)","Ajustar molino si es necesario (más fino = más tiempo)","Probar en taza y anotar en app","Repetir hasta conseguir ratio correcto"]},
+  {title:"Limpieza de máquina",tag:"Diario",steps:["Primer ciego a las 18:30 con portafiltro ciego","Pastilla de limpieza una vez por semana","Limpiar vaporizador después de cada uso","Segundo ciego al cierre","Limpiar bandeja y exterior con bayeta"]},
+  {title:"Gestión de incidencias",tag:"Protocolo",steps:["Identificar el problema y categoría","Si es resoluble en 5 min, resolverlo directamente","Si no, llamar al contacto correspondiente","Anotar en el parte diario con hora y solución","Si supera tu autoridad, avisar a Diyar ese mismo día"]},
+  {title:"Pedidos a proveedores",tag:"Semanal",steps:["Revisar stock en la app cada lunes","Leche oat a Disbesa: pedir lunes o martes","Vasos a Envapro: cuando baje del mínimo","Usar el correo habilitado para proveedores","Café verde: avisar a Diyar, no pedir directamente"]}
+];
+const PROTOS_MB = [
+  {title:"Apertura — Matbakh",tag:"Diario",steps:STEPS_OPEN_MB},
+  {title:"Cierre — Matbakh",tag:"Diario",steps:STEPS_CLOSE_MB},
+  {title:"Luces de la sala",tag:"Apertura",steps:["Encender luces de planta entrada","Encender luces sala de abajo (panel izquierdo)","Encender luces de ambiente / barra","Al cierre: apagar en orden inverso"]},
+  {title:"Calibración del espresso",tag:"Diario",steps:["Encender la máquina y esperar temperatura estable","Preparar dosis base (18g)","Extraer y medir tiempo (objetivo 25-30s)","Ajustar molino si es necesario","Probar en taza y anotar en app"]},
+  {title:"Gestión de incidencias",tag:"Protocolo",steps:["Identificar el problema","Si es resoluble en 5 min, resolverlo directamente","Si no, llamar al contacto correspondiente","Anotar en el parte diario","Si supera tu autoridad, avisar a Diyar"]},
+  {title:"Pedidos a Makro",tag:"Semanal",steps:["Revisar stock cada inicio de semana","Hacer lista consolidada antes de ir","Priorizar productos bajo mínimo (marcados en rojo en la app)","Guardar ticket para registro de gastos","Actualizar cantidades en la app al volver"]}
+];
+
+if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 </script>

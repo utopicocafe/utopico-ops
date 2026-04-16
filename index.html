@@ -351,7 +351,9 @@ function buildNav() {
   const nav = document.getElementById('app-nav');
   const role = currentUser.role;
   let tabs = [];
-  if (role === 'owner') tabs = ['Resumen','Inventario','Horarios','Vacaciones','Avisos','Protocolos'];
+ if (role === 'owner') tabs = ['Resumen','Reservas','Inventario','Horarios','Vacaciones','Avisos','Protocolos','Recetas'];
+else if (role === 'manager') tabs = ['Checklist','Reservas','Inventario','Parte diario','Café','Horarios','Protocolos','Avisos','Recetas'];
+else tabs = ['Mi turno','Protocolos','Avisos','Vacaciones','Recetas'];,'Inventario','Horarios','Vacaciones','Avisos','Protocolos'];
   else if (role === 'manager') tabs = ['Checklist','Inventario','Parte diario','Café','Horarios','Protocolos','Avisos'];
   else tabs = ['Mi turno','Protocolos','Avisos','Vacaciones'];
   nav.innerHTML = tabs.map((t,i) =>

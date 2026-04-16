@@ -1003,7 +1003,245 @@ const PROTOS_MB = [
   {title:"Pedidos a Makro",tag:"Semanal",steps:["Revisar stock cada inicio de semana","Hacer lista consolidada antes de ir","Priorizar productos bajo mínimo (marcados en rojo en la app)","Guardar ticket para registro de gastos","Actualizar cantidades en la app al volver"]}
 ];
 
-if ('serviceWorker' in navigator) {
+// ── RESERVATIONS (Matbakh) ─────────────────────────────────
+async function renderReservations() {
+  const c = document.getElementById('app-sections');
+  const today = new Date().toISOString().split('T')[0];
+  const isOwner = currentUser.role === 'owner';
+  const isManager = currentUser.role === 'manager';
+
+  c.innerHTML = `
+    <div class="section-title">Reservas · Matbakh</div>
+    <div class="filters" style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
+      <input type="date" class="form-input" id="res-date" value="${today}" style="width:160px">
+      <select class="form-input" id="res-status" style="width:140px">
+        <option value="">Todas</option>
+        <option value="pending">Pendientes</option>
+        <option value="confirmed">Confirmadas</option>
+        <option value="cancelled">Canceladas</option>
+      </select>
+      <button class="btn-primary" style="padding:8px 18px;font-size:13px" onclick="loadReservations()">Ver</button>
+    </div>
+    <div id="res-stats" style="display:none" class="stats-grid" style="margin-bottom:1rem"></div>
+    <div id="res-list"><div class="loading"><span class="spinner"></span>Cargando...</div></div>
+  `;
+
+  loadReservations();
+}
+
+async function loadReservations() {
+  const date = document.getElementById('res-date')?.value;
+  const status = document.getElementById('res-status')?.value;
+  const API = 'https://energetic-motivation-production.up.railway.app';
+
+  try {
+    const params = new URLSearchParams();
+    if (date) params.set('date', date);
+    if (status) params.set('status', status);
+    params.set('service', 'dinner');
+
+    const res = await fetch(`${API}/reservations?${params}`);
+    const data = await res.json();
+    const reservations = data.reservations || [];
+
+    // Stats
+    const statsEl = document.getElementById('res-stats');
+    const total = reservations.length;
+    const covers = reservations.filter(r => r.status !== 'cancelled').reduce((s, r) => s + r.party_size, 0);
+    const pending = reservations.filter(r => r.status === 'pending').length;
+    const confirmed = reservations.filter(r => r.status === 'confirmed').length;
+
+    statsEl.style.display = 'grid';
+    statsEl.innerHTML = `
+      <div class="stat"><div class="stat-label">Total</div><div class="stat-val">${total}</div></div>
+      <div class="stat"><div class="stat-label">Comensales</div><div class="stat-val">${covers}</div></div>
+      <div class="stat"><div class="stat-label">Pendientes</div><div class="stat-val" style="color:var(--amber)">${pending}</div></div>
+      <div class="stat"><div class="stat-label">Confirmadas</div><div class="stat-val" style="color:var(--green)">${confirmed}</div></div>
+    `;
+
+    const list = document.getElementById('res-list');
+    const isOwner = currentUser.role === 'owner';
+    const isManager = currentUser.role === 'manager';
+    const canEdit = isOwner || isManager;
+
+    if (!reservations.length) {
+      list.innerHTML = '<div class="card" style="color:var(--text2);font-size:14px">Sin reservas para esta fecha.</div>';
+      return;
+    }
+
+    list.innerHTML = reservations.map(r => `
+      <div class="card" id="rescard-${r.id}" style="padding:1rem 1.25rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>
+            <span style="font-size:15px;font-weight:500">${r.name}</span>
+            <span style="font-size:12px;color:var(--text2);margin-left:10px">${r.time.slice(0,5)} · ${r.party_size} pax</span>
+          </div>
+          <span class="badge badge-${r.status === 'pending' ? 'pending' : r.status === 'confirmed' ? 'ok' : 'no'}">
+            ${r.status === 'pending' ? 'Pendiente' : r.status === 'confirmed' ? 'Confirmada' : 'Cancelada'}
+          </span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:${r.notes || canEdit ? '10px' : '0'}">${r.email}${r.phone ? ' · ' + r.phone : ''}</div>
+        ${r.notes ? `<div style="font-size:12px;color:var(--amber);margin-bottom:10px">📝 ${r.notes}</div>` : ''}
+        ${canEdit && r.status !== 'cancelled' ? `
+          <div style="display:flex;gap:8px">
+            ${r.status === 'pending' ? `<button class="btn-primary" style="font-size:12px;padding:6px 14px;background:var(--green);color:#fff" onclick="confirmReservation('${r.id}')">✓ Confirmar</button>` : ''}
+            <button style="font-size:12px;padding:6px 14px;border-radius:8px;border:0.5px solid var(--red);background:none;color:var(--red);cursor:pointer;font-family:var(--font)" onclick="cancelReservation('${r.id}')">Cancelar</button>
+          </div>` : ''}
+      </div>
+    `).join('');
+
+  } catch(e) {
+    document.getElementById('res-list').innerHTML = '<div class="card" style="color:var(--red);font-size:13px">Error conectando con el servidor.</div>';
+  }
+}
+
+async function confirmReservation(id) {
+  const API = 'https://energetic-motivation-production.up.railway.app';
+  try {
+    await fetch(`${API}/reservations/${id}/confirm`, { method: 'PATCH' });
+    loadReservations();
+  } catch(e) { alert('Error al confirmar'); }
+}
+
+async function cancelReservation(id) {
+  if (!confirm('¿Cancelar esta reserva?')) return;
+  const API = 'https://energetic-motivation-production.up.railway.app';
+  try {
+    await fetch(`${API}/reservations/${id}/cancel`, { method: 'PATCH' });
+    loadReservations();
+  } catch(e) { alert('Error al cancelar'); }
+}
+
+// ── RECIPES ───────────────────────────────────────────────────
+async function renderRecipes() {
+  const c = document.getElementById('app-sections');
+  const isOwner = currentUser.role === 'owner';
+  const isManager = currentUser.role === 'manager';
+  const canEdit = isOwner || isManager;
+
+  const { data: recipes } = await sb.from('ops_recipes').select('*').order('type').order('origin');
+
+  const espresso = (recipes || []).filter(r => r.type === 'espresso');
+  const v60 = (recipes || []).filter(r => r.type === 'v60');
+
+  function recipeCard(r) {
+    return `<div class="card" style="margin-bottom:.75rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:500">${r.origin}</div>
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-top:2px">${r.type === 'espresso' ? 'Espresso' : 'V60 Filter'}</div>
+        </div>
+        ${canEdit ? `<button style="font-size:11px;padding:3px 10px;border-radius:5px;border:0.5px solid var(--border);background:none;color:var(--text2);cursor:pointer" onclick="editRecipe('${r.id}')">Editar</button>` : ''}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:${r.flavor_notes ? '12px' : '0'}">
+        ${r.dose_g ? `<div class="stat" style="padding:.625rem"><div class="stat-label">Dosis</div><div class="stat-val" style="font-size:16px">${r.dose_g}g</div></div>` : ''}
+        ${r.ratio_g ? `<div class="stat" style="padding:.625rem"><div class="stat-label">Ratio salida</div><div class="stat-val" style="font-size:16px">${r.ratio_g}g</div></div>` : ''}
+        ${r.extraction_time_s ? `<div class="stat" style="padding:.625rem"><div class="stat-label">Tiempo</div><div class="stat-val" style="font-size:16px">${r.extraction_time_s}s</div></div>` : ''}
+        ${r.temperature_c ? `<div class="stat" style="padding:.625rem"><div class="stat-label">Temperatura</div><div class="stat-val" style="font-size:16px">${r.temperature_c}°C</div></div>` : ''}
+        ${r.water_g ? `<div class="stat" style="padding:.625rem"><div class="stat-label">Agua</div><div class="stat-val" style="font-size:16px">${r.water_g}g</div></div>` : ''}
+        ${r.grind_size ? `<div class="stat" style="padding:.625rem"><div class="stat-label">Molturación</div><div class="stat-val" style="font-size:14px">${r.grind_size}</div></div>` : ''}
+      </div>
+      ${r.flavor_notes ? `<div style="font-size:13px;color:var(--text2);border-top:0.5px solid var(--border);padding-top:10px;line-height:1.6">☕ ${r.flavor_notes}</div>` : ''}
+    </div>`;
+  }
+
+  function addForm() {
+    if (!canEdit) return '';
+    return `<div class="card" id="recipe-form-card">
+      <div class="card-title" id="recipe-form-title">Nueva receta</div>
+      <input type="hidden" id="recipe-edit-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><label class="form-label">Origen</label><input class="form-input" id="rec-origin" placeholder="Ej: Ethiopia Salomon"></div>
+        <div><label class="form-label">Tipo</label><select class="form-input" id="rec-type"><option value="espresso">Espresso</option><option value="v60">V60 Filter</option></select></div>
+        <div><label class="form-label">Dosis (g)</label><input type="number" class="form-input" id="rec-dose" placeholder="18"></div>
+        <div><label class="form-label">Ratio salida (g)</label><input type="number" class="form-input" id="rec-ratio" placeholder="36"></div>
+        <div><label class="form-label">Tiempo (s)</label><input type="number" class="form-input" id="rec-time" placeholder="27"></div>
+        <div><label class="form-label">Temperatura (°C)</label><input type="number" class="form-input" id="rec-temp" placeholder="93"></div>
+        <div><label class="form-label">Agua (g) — V60</label><input type="number" class="form-input" id="rec-water" placeholder="250"></div>
+        <div><label class="form-label">Molturación</label><input class="form-input" id="rec-grind" placeholder="Media-fina"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Notas de sabor</label><textarea class="form-input" id="rec-flavor" placeholder="Ej: Notas de frutos rojos, acidez media, buen cuerpo..."></textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary" onclick="saveRecipe()">Guardar receta</button>
+        <button style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;color:var(--text2);cursor:pointer;font-family:var(--font)" onclick="clearRecipeForm()">Limpiar</button>
+      </div>
+      <div class="alert-banner alert-green" id="rec-ok">Receta guardada.</div>
+      <div class="alert-banner alert-red" id="rec-err">Rellena origen y tipo.</div>
+    </div>`;
+  }
+
+  c.innerHTML = `
+    <div class="section-title">Recetas de café</div>
+    ${addForm()}
+    <div class="tabs" style="margin-top:1.25rem">
+      <button class="tab-btn active" onclick="switchTab('rec','esp',this)">☕ Espresso</button>
+      <button class="tab-btn" onclick="switchTab('rec','v60',this)">🫗 V60 Filter</button>
+    </div>
+    <div class="tab-panel active" id="rec-esp">
+      ${espresso.length ? espresso.map(recipeCard).join('') : '<div class="card" style="color:var(--text2);font-size:14px">Sin recetas de espresso todavía.</div>'}
+    </div>
+    <div class="tab-panel" id="rec-v60">
+      ${v60.length ? v60.map(recipeCard).join('') : '<div class="card" style="color:var(--text2);font-size:14px">Sin recetas de V60 todavía.</div>'}
+    </div>
+  `;
+}
+
+async function saveRecipe() {
+  const origin = document.getElementById('rec-origin').value.trim();
+  const type = document.getElementById('rec-type').value;
+  const editId = document.getElementById('recipe-edit-id').value;
+  const errEl = document.getElementById('rec-err');
+  const okEl = document.getElementById('rec-ok');
+
+  if (!origin) { errEl.classList.add('show'); setTimeout(() => errEl.classList.remove('show'), 2500); return; }
+
+  const payload = {
+    origin, type,
+    dose_g: parseFloat(document.getElementById('rec-dose').value) || null,
+    ratio_g: parseFloat(document.getElementById('rec-ratio').value) || null,
+    extraction_time_s: parseFloat(document.getElementById('rec-time').value) || null,
+    temperature_c: parseFloat(document.getElementById('rec-temp').value) || null,
+    water_g: parseFloat(document.getElementById('rec-water').value) || null,
+    grind_size: document.getElementById('rec-grind').value.trim() || null,
+    flavor_notes: document.getElementById('rec-flavor').value.trim() || null,
+    updated_by: currentUser.name,
+  };
+
+  if (editId) {
+    await sb.from('ops_recipes').update(payload).eq('id', editId);
+  } else {
+    await sb.from('ops_recipes').insert(payload);
+  }
+
+  okEl.classList.add('show');
+  clearRecipeForm();
+  setTimeout(() => { okEl.classList.remove('show'); renderRecipes(); }, 1200);
+}
+
+function clearRecipeForm() {
+  document.getElementById('recipe-edit-id').value = '';
+  document.getElementById('recipe-form-title').textContent = 'Nueva receta';
+  ['rec-origin','rec-dose','rec-ratio','rec-time','rec-temp','rec-water','rec-grind','rec-flavor'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+async function editRecipe(id) {
+  const { data: r } = await sb.from('ops_recipes').select('*').eq('id', id).single();
+  if (!r) return;
+  document.getElementById('recipe-edit-id').value = r.id;
+  document.getElementById('recipe-form-title').textContent = 'Editar receta';
+  document.getElementById('rec-origin').value = r.origin || '';
+  document.getElementById('rec-type').value = r.type || 'espresso';
+  document.getElementById('rec-dose').value = r.dose_g || '';
+  document.getElementById('rec-ratio').value = r.ratio_g || '';
+  document.getElementById('rec-time').value = r.extraction_time_s || '';
+  document.getElementById('rec-temp').value = r.temperature_c || '';
+  document.getElementById('rec-water').value = r.water_g || '';
+  document.getElementById('rec-grind').value = r.grind_size || '';
+  document.getElementById('rec-flavor').value = r.flavor_notes || '';
+  document.getElementById('recipe-form-card').scrollIntoView({ behavior: 'smooth' });
+}if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 </script>
